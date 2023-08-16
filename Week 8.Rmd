@@ -1,0 +1,355 @@
+---
+title: "Homework 8"
+author: "Samikshya"
+date: "2022-11-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r} 
+library(ggplot2)
+library(tidyverse)
+library(resampledata)
+library(dplyr)
+```
+
+
+
+
+# Question 9.15
+
+```{r}
+x <- Quetzal$Snag
+y <- Quetzal$Nest
+model <- lm(y ~ x)
+summary(model)
+
+```
+a) Compute a 95% confidence interval for the true slope 
+
+b +_ t*SE(B)
+```{r} 
+a =nrow(Quetzal)
+a  #SO n is 21 therefore, df = 20.
+# So t score is: 
+t_score = qt(0.975, df = 19)
+t_score
+
+#From the model above; 
+beta = 0.79267
+SD_beta = 0.04045 
+
+#So Confidence intervla is , 
+
+upper = beta + (t_score * SD_beta)
+lower  = beta - (t_score * SD_beta)  
+
+print(upper)
+print(lower)
+
+
+```
+The 95% confidence interval for the true slope of this regression equation is (0.708, 0.877)
+b) 
+
+Use bootstrap to dins a 95% confidence interval for the slope.  
+
+```{r} 
+
+N <- 10^4
+beta.boot=numeric(N)
+n=nrow(Quetzal)
+
+for(i in 1:N)
+{
+  index <- sample(n, replace=TRUE)
+  quetzal_boot <- Quetzal[index,]   #Resample data 
+  boot.model <- lm(Nest ~ Snag, data =quetzal_boot)   #Model the data to calcualte the new beta
+  beta.boot[i] <- boot.model$coefficients[2]
+}
+
+quantile(beta.boot, c(.025, .975))
+
+```
+The confidence interval for the slope based on the bootstrap is (0.658, 0.864)
+
+## Question 9.19
+
+```{r}
+ggplot(data = Volleyball2009, aes(x = Kills, y = Assts))+
+  geom_point()
+```
+The relationship between kills and assis seems to have strong positive relation. 
+
+
+```{r} 
+#Using linear model with y = kills x = assts
+
+volley_model = lm(Kills ~ Assts, data = Volleyball2009)
+summary(volley_model)
+```
+
+Based on the summary model above, the least square equation for the line is, 
+kills = 1.74 + 0.947 * Assts.
+This means that for every increase in assists per set, the kills per set increase by 0.947 unit. 
+The R^2 is 0.936 so it means that 93.6% of the variation in kills can be explained by variation in the assist per set (Assts). It also means that our model does explain a lot of( majority) of the variation in kills.
+
+c) Calculating the residual: 
+
+```{r}
+volleyball_res <- tibble(residual = volley_model$residuals)
+ggplot(volleyball_res, aes(x = residual)) +
+  geom_histogram() +
+  labs(x = "Residual")
+
+
+
+```
+
+From the  histogram above, we can see that the residual has no specific skewness or tail. It is distributed normally and that there is no clear pattern to be alarmed about. 
+
+```{r}
+nonlinear_model_data <- tibble(residual_volley = volley_model$residuals, x = Volleyball2009$Assts)
+ggplot(nonlinear_model_data, aes(x = x, y = residual_volley)) +
+  geom_point() +
+  labs(x = "X", y = "Residual") +
+  geom_hline(yintercept = 0, col = "blue", size = 1)
+
+
+```
+From the scatterplot above we can also see that the residual line a straight line and the plots are scattered randomnly so we donot need to worry about the appropriateness of a straight line model. 
+
+## Question 9.20 
+
+a) Finding a 96% confidence interval for the slope:  
+
+```{r}
+df_v = nrow(Volleyball2009)
+df_v
+```
+
+```{r} 
+
+
+t_score_v = qt(0.975, df = df_v - 2)  #We use 2 df because we have 2 coefficients 
+t_score_v
+
+#From the model above; 
+beta = 0.94699
+SD_beta = 0.04651  
+
+#So Confidence intervla is , 
+
+upper = beta + (t_score * SD_beta)
+lower  = beta - (t_score * SD_beta)  
+
+print(upper)
+print(lower)
+
+```
+The confidence interval for the beta is (0.8496, 1.0443)  
+
+b)
+for Assts value of 12.4, the predicted kills and 95% confidence
+
+```{r}
+predict_kills = predict(volley_model, tibble(Assts =12.4), interval="confidence")
+predict_kills
+```
+For the predicted kills per game, based on the predicted model is 13.5 and the confidence interval is: (13.40, 13.56)
+
+## Question 9.25 
+
+```{r}
+#glimpse(Maunaloa)
+
+ggplot(data = Maunaloa, aes (x = Year, y = Level))+
+  geom_point()
+```
+
+The relationship seems to be linear and positively related. 
+
+b)  
+
+```{r}
+
+#Using linear model with y = C02 Level,  x = year
+
+CO2_model = lm(Level ~ Year, data = Maunaloa)
+summary(CO2_model)
+```
+From the CO2 model above, we can see that for every increase in year, the CO@ level increases by 1.826e value. 
+
+c) Residual: 
+
+```{r}
+Co2_residual_data <- tibble(residual_CO2 = CO2_model$residuals, x = Maunaloa$Year)
+ggplot(Co2_residual_data , aes(x = x, y = residual_CO2)) +
+  geom_point() +
+  labs(x = "X", y = "Residual") +
+  geom_hline(yintercept = 0, col = "blue", size = 1)
+```
+The residual is centered around 0 and has a straight line. However, the points of residuals seems to follow a curved pattern, which can be concerning. Also, the values of the residuals are all negative in betweenyears 1995- 2005 and all postive otherwise. This shows that there could be a pattern in the residuals. 
+```{r}
+CO2_res <- tibble(residual = CO2_model$residuals)
+ggplot(CO2_res, aes(x = residual)) +
+  geom_histogram() +
+  labs(x = "Residual")
+```
+From the histogram too, we can see that the histogram seems to be right skewed with peak near -1 and -2. In this case, the straight line model may not be appropriate. 
+
+## Question 9.28: 
+
+
+```{r}
+#glimpse(Illiteracy)
+
+corr_illetracy = cor(Illiteracy$Illit, Illiteracy$Births,  use = "complete.obs")
+corr_illetracy 
+
+```
+The correlation between illiteracy rate and birth is 0.769. 
+Using Bootstrap to find the 95% confidence interval: 
+
+```{r}
+N <- 10^4 
+corr_illit_boot <- numeric(N)
+
+n = nrow(Illiteracy) 
+for (i in 1:N)
+{
+  index <- sample(n, replace = TRUE) 
+  illit_boot <- Illiteracy[index,]
+  corr_illit_boot[i] = cor(illit_boot$Illit, illit_boot$Births) 
+}
+
+mean_illi <- mean(corr_illit_boot)
+sd_illit <- sd(corr_illit_boot) 
+quantile_illit <- quantile(corr_illit_boot, c(0.025, 0.975)) 
+
+mean_illi
+quantile_illit 
+```
+SO, the bootstrap percentile interval for the correlation is (0.678, 0.842) 
+
+b) 
+Permutation test to test whether illiteracy rate and births are independent:  
+
+Using coorelation for conducting permutation test to test the indepdence. 
+
+```{r}
+N <- 10^4
+n = nrow(Illiteracy)  
+beta_illit_corr <- numeric(N)
+
+
+observed <- cor(Illiteracy$Births, Illiteracy$Illit)
+for (i in 1:N)
+{
+  index <- sample(n, replace=FALSE)
+  Illit_Boot<- Illiteracy$Births[index]
+  beta_illit_corr[i] <- cor(Illit_Boot, Illiteracy$Illit)  #Maintaing same Illit and only changing the sample for Births
+}
+
+p_value_corr <- (sum(observed <= beta_illit_corr) + 1) / (N + 1) # P-value
+p_value_corr 
+
+```
+
+The p value is really small ( less than 0.05), so the probability of random chance alone producing the correlation 0.769 is really low so we can reject the null hypothesis that they are independent. SO, we conclude that birth and illiteracy are not independent. 
+
+## Question 9.40 
+
+a)
+Logistics  equation for male passengers on Titanic 
+Data only has make, survived = 1 if the passenger survived. 
+
+```{r}
+
+glimpse(Titanic)
+
+titanic_male_model <- glm( Survived ~ Age, data=Titanic, family=binomial)  #Binomial because it is a 1,0 value within the logistic regression
+summary(titanic_male_model)
+```
+So, the coefficient is 0.0237. The likelihood of survival decreases by 0.024 odds as the age increases. 
+
+b) Comparing the odds of survival for 30 and 40: 
+
+```{r} 
+f <- function(x)
+{
+  return(odds_surv <- exp(-0.661 - (0.0234*x))/(1 + exp(-0.661 - (0.0234 *x))))    #Using formula for calculations:
+} 
+        
+
+
+age_30 <- f(30)
+age_30
+
+age_40 <- f(40)
+age_40
+
+#odds_surv <- exp(-0.661 - (-0.0234x))/(1 + exp(-0.661 - (-0.0234x))
+```
+
+So, the odds for survival for age 30 is 0.204 and for age 40 is 0.168. 
+Odds/likelihood for survival at age 30 is 20.4% and at age 40 is 16.8%
+
+c) 
+bootstrap interval for slope: 
+
+```{r}
+N <- 10^4 
+n <-nrow(Titanic) 
+beta_boot <- numeric(N) 
+
+for (i in 1:N)
+{
+  index <- sample(n, replace = TRUE)
+  titanic_boot <- Titanic[index, ]
+  titanic_boot_model <- glm( Survived ~ Age, data=titanic_boot, family=binomial)
+  beta_boot[i] <- coef(titanic_boot_model)[2]
+                            
+}
+
+slope_bootrange <- quantile(beta_boot, c(0.025, 0.975))
+slope_bootrange
+```
+The bootstrap range for the slope is ( -0.00844, -0.0405)
+
+d)  
+calculate the probability of 69 year old man surviving and find a 95% bootstrap percentile interval: 
+
+```{r}
+#Prediction for 69 year old man surviving: 
+
+predict_69 <- predict(titanic_male_model, tibble(Age= 69), type = "response")
+predict_69
+```
+So, the probability of a 69 year old man surviving is 9.11% 
+
+Now, the bootstrap: 
+
+```{r}
+N <- 10^4 
+n <- nrow(Titanic)
+predict_boot <- numeric(N)
+
+for (i in 1:N)
+{
+  index <- sample(n, replace = TRUE)
+  titanic_m_boot <- Titanic[index, ]
+  male_boot <- glm( Survived ~ Age, data=titanic_m_boot, family=binomial)
+  predict_boot[i] = predict(male_boot, tibble(Age = 69), type = "response") 
+  
+}
+
+age_69_boot <- quantile(predict_boot, c(0.025, 0.975)) 
+age_69_boot
+```
+The range for the bootstrap value for the prediction of survival for someone age 69 is (0.046, 0.1604).
+Therefore, with 95% confidence interval, the likelihood of someone surviving is 4.6% to 16.04%. 
+

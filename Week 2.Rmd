@@ -1,0 +1,840 @@
+---
+title: "Untitled"
+author: "Samikshya"
+date: '2022-10-09'
+output: html_document
+---
+## Chapter 2 : 
+  Question 2.1 
+
+
+```{r}
+library(resampledata)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+x <- c(3,5,8,15,20,21,24)
+
+# Find Mean.
+result.mean <- mean(x) 
+result.median <- median(x)
+
+result.mean
+result.median
+
+```
+Mean of x = 13.7 
+Median of x = 15 
+
+Now calculating the logarithm of data and calculating their mean and median 
+
+```{r} 
+
+log.x = log(x)  #Calculate the log 
+ 
+# Calculating the mean and median of the log vlaue of x 
+
+resultmean.log.x <- mean(log.x)
+resultmedianloglx <-median(log.x)
+
+resultmean.log.x
+
+resultmedianloglx
+
+#log.x
+
+```
+
+mean of the logx is 2.39 
+median of the logx is 2.71 
+
+Now calculating ln x and ln m (Calculating if the log of mean is equal to the mean of logged data x)
+```{r}
+ln_mean <- log(result.mean) 
+ln_median <- log(result.median) 
+
+ln_mean
+ln_median
+
+```
+
+So, when we compare the log of mean in first case, it is equal of 2.61. The mean of the logarithm of x is approximately 2.39. Therefore, they are not equal. 
+
+However, the log of the median of x is 2.70 and the median of the logarithm of the x is 2.70, so they are equal. 
+
+## Question 2.3 
+
+a. No, the mean of f(x) is not the same as f(x1), f(x2) etc 
+b. No, the median is not the same.
+c. They would be same of the function is linear 
+d. This would happen if function is increasing, decreasing in this case since x1 < x2 < x3 and if the total number of values in function is odd. 
+
+## Question 2.4  
+
+Question a.
+
+```{r}
+# First importing data:  
+
+data(FlightDelays) 
+
+#Creating a table for delayed times: 
+
+
+ggplot(data = FlightDelays, mapping = aes( x = DepartTime ))+
+  geom_bar()
+
+
+#tab
+```
+The bargraph above shows the number of flights across different depart time. We see that most of the flights had their departure time between 8am - 8pm. 
+
+Question b. 
+
+ 
+
+```{r} 
+prop.table(table(FlightDelays$Day, FlightDelays$Delayed30), 1 )%>%
+  round(3)  #Converting the table into 3 decimal place to make it easier to read.
+```
+
+From the above table we can see that majority of flights didnot depart late by 30 minutes or more. For example: 92% of the flights that departed late on Sunday were not delayed by 30 minutes or more. 
+
+c)
+
+```{r}
+flight_delays.df <- FlightDelays
+
+names(flight_delays.df)  
+
+
+ggplot(data = flight_delays.df, mapping = aes(x = Delayed30,y =  FlightLength)) +
+  geom_boxplot()
+
+```
+
+
+From the boxplot above we can see that there are more variation in flight length of flights that were not delayed by 30 minutes.(The box plots are longer)
+In plot where the delay was more than 30 minutes, there are outliers with flightlength extending to 300. In the boxplot, the median in closer to 1st quartile. It also indicates that the data is right skewed. 
+
+##Question 2.7
+
+a)
+
+```{r}
+library(resampledata)
+data(Spruce)  
+
+library (dplyr)
+```
+
+```{r}
+summary(Spruce$Ht.change) 
+
+
+
+#tapply(sporucr$Di,change, spruce$Fertilizer, summary) 
+#postively related
+  
+#color = white 
+
+#High kurtosis, normal 
+
+#Quantile plot: looks normal. How do understand the normal Q-Q Plot:doesnot follow the q lines. Waves gives us a peak than higher one. Normal  distrubtion with large concentration of boservation in the center. 
+```
+From the summary statistics, the minim of ht.change is 8.30, max is 51.50 and IQR is 14.97
+
+b) 
+```{r}
+ggplot( data = Spruce, mapping = aes(x = Ht.change))+
+  geom_histogram(bins = 25, color = "white")
+  
+```
+We can see from the histogram figure above that it is a multimodal distribution with few distinct peaks. If we observe the QQ plot below we see that while we see the data tend to follow the straight lines, there are discontinuity in the plot points, mirroring the multiple peaks in the histogram. the tails also seems to be skewed. So I dont think the height change closely follows normal distributions. 
+```{r}
+qqnorm(Spruce$Ht.change,
+         ylab = "Height Change in Spruce")
+
+qqline(Spruce$Ht.change)
+```
+c) 
+```{r}
+#head(Spruce, 10)
+ggplot(data = Spruce, mapping = aes(x = Fertilizer ,y = Di.change))+ 
+  geom_boxplot()
+```
+
+From the boxplot above we can see that there is a large change in di.change for those who were in the fertilized plants (Fertilizer F). The diameter change was also right skewed (higher values after median) for fertilized pots. The non-fertilzied pots had smaller diameter change with exception of few outliers. 
+
+d)
+```{r}
+tapply(Spruce$Di.change, Spruce$Fertilizer, summary) 
+
+```
+With the summary we can see the difference in min and max for the fertilized and non-fertilized pots. The mean is also significantly higher for thefertilzied pot. 
+
+e) 
+```{r} 
+ggplot(data = Spruce, aes(x = Di.change, y = Ht.change ))+
+  geom_point()
+
+```
+
+From the scatter plot, we can see that there is a postive relation between di.change and ht. changes. As the change in diameter gets larger, the height change also gets larger. 
+The line also indicates strong positive relation between these two variables. 
+
+
+## Question 2.8
+a) 
+```{r}
+data(MobileAds)
+```
+
+```{r} 
+#plotting the cost per click pre
+ggplot( data = MobileAds, mapping = aes(x = m.cpc_pre                     ))+
+  geom_histogram(bins = 25, color = "white")
+  
+```
+```{r}
+#plotting the cost per click post
+ggplot( data = MobileAds, mapping = aes(x = m.cpc_post))+
+  geom_histogram(bins = 25, color = "white")
+  
+```
+The  distribution of both graphs tend towards right skwered with their peak unimodal. It looks normally distributed dataset as well. 
+
+b) 
+```{r}
+gap <-  abs(MobileAds$m.cost_pre - MobileAds$m.cpc_post) 
+#absolute value to capture the gap
+#Plotting the histogram
+
+ggplot( data = MobileAds, mapping = aes(x = gap))+
+  geom_histogram(bins = 30, color = "white")
+  
+
+```
+The difference between two variables also tends to follow the normal distribution but one that is long right tail(positive skew) 
+
+c)
+
+```{r} 
+
+qqnorm(gap,ylab = "Difference in cost pre and post ")
+
+qqline(gap)
+```
+
+From the normal plot, we can see the norm closely follows the line till 1 but then it curves towards the end, indicating it has postive kurtosis as well as it is positive skewed. 
+
+## CHAPTER 3 HOMEWORK: 
+
+## Question 3.3 
+
+a) p value of 0.006 provides a stronger evidence for the alternative hypothesis because p value of 0.006 means that , if the null hypothesis were indeed true, there would be  6 in 1000 chance of observing results as extreme as we calculated. Compared to this, p value of 0.03 mean that there would 30 in 1000 chances of observing our data. Therefore, p value of 0.006 is more robust. 
+
+  In first case, the test is two sided tail test because the null is mean of sample 1 = mean of sample 2. Where as in second scenario Ha it is a one sided tail tests. 
+  
+b) The p value of 0.095 provided a stronger evidence that chance alone might account for the observed result when compared to 0.04 value. 
+
+##Question 3.5 
+
+a)
+
+```{r} 
+
+data <- FlightDelays 
+
+ls(FlightDelays)
+
+delay.time.AA <- FlightDelays %>%    
+  filter (Carrier == "AA" )  %>%
+  summarize (mean_late.AA = mean(Delay), na.rm = TRUE)  #Calculated the mean of delaye by American Airlines
+
+
+delay.time.UA <- FlightDelays %>%
+  filter (Carrier == "UA" )  %>%
+  summarize (mean_late.UA = mean(Delay), na.rm = TRUE)   #Calculate the mean of delay by UA
+
+#Calculate the difference in mean delay times between two carriers. 
+  
+observed.carrier <- (delay.time.UA$mean_late.UA - delay.time.AA$mean_late.AA)
+
+observed.carrier
+
+## The observed mean difference in delay time is 5.885696
+
+```
+
+```{r} 
+#N = number of simulations we will use 
+N <- 10^4 -1
+
+sample.size = nrow(FlightDelays)  #sample.size  #The sample size is 4029
+#glimpse (FlightDelays)
+
+first_group = nrow(FlightDelays[FlightDelays$Carrier=="UA",])
+first_group  #Number of sample in first group is 1123
+
+#Creating a blank vector to store the simulation results 
+
+result.mean.simulation <- numeric(N) 
+
+#use loop to to run this 
+
+for (i in 1:N) {
+  index = sample(sample.size, size = first_group, replace = FALSE) 
+
+#calculate the difference between two simulated groups 
+
+  result.mean.simulation[i] <- mean(FlightDelays$Delay[index]) - mean(FlightDelays$Delay[- index], ) 
+}
+
+
+```
+
+
+```{r}
+
+ggplot(data = tibble(result.mean.simulation), mapping = aes(x=result.mean.simulation)) + 
+  geom_histogram() +
+  geom_vline(xintercept = observed.carrier, color = "red")
+
+```
+
+
+```{r}
+
+#Calculate the p-value
+# We use greater than because of the position of the red line i.e observed mean 
+pvalue.carrier <- ((min(sum(result.mean.simulation >=  observed.carrier), sum(result.mean.simulation <= observed.carrier))+ 1) / (N + 1))  * 2
+
+pvalue.carrier
+
+```
+So, from here we can observe that two tailed p value is 2e- 04. Since the p value is extremely small, we can reject the null. This is because the probability of getting the observed mean difference simply by chance is very low, indicating the we can reject the null in the favor of alternative. 
+
+
+
+Question 3.5 
+B) 
+
+
+```{r}
+data <- FlightDelays 
+
+ls(data)
+
+delay.time.May <- data %>%    
+  filter (Month == "May")%>%
+  summarize (mean_late.May = mean(Delay), na.rm = TRUE)  #Calculated the mean of delayed by May
+  delay.time.May 
+ 
+delay.time.June <- data%>%
+  filter (Month == "June")  %>%
+  summarize (mean_late.June = mean(Delay), na.rm = TRUE)   #Calculate the mean of delay on month of June 
+  delay.time.June
+
+```
+
+```{r}
+# Calculating the difference between these two month
+
+obs.meandiff.month <- abs(delay.time.May  - delay.time.June)
+
+obs.meandiff.month  #The observed mean difference of month is 5.66
+
+```
+
+
+```{r}
+
+N <- 10^4 -1 
+
+#sample.size = the number of observations in our sample
+sample.size = nrow(data)
+#sample.size
+
+group.1.May = nrow(FlightDelays[FlightDelays$Month =="May",])
+group.1.May 
+
+```
+
+```{r}
+
+result.month <- numeric(N)
+
+
+for(i in 1:N)
+{index = sample(sample.size, size=group.1.May, replace = FALSE)
+
+  
+  result.month[i] = mean(FlightDelays$Delay[index]) - mean(FlightDelays$Delay[-index],)
+}
+
+
+
+```
+
+
+
+```{r}
+
+#plot a histogram of the simulated differences
+#add a vertical line at the observed difference 
+
+ggplot(data = tibble(result.month), mapping = aes(x= result.month))+
+  geom_histogram(bins = 10)
+  xlim(-25,50000)
+  geom_vline(xintercept= obs.meandiff.month, color = "red") 
+
+
+#Calculate the p-value
+
+  head(result.month, 15)
+pvalue.month <- ((sum(result.month >= obs.meandiff.month) + 1) / (N + 1)) * 2
+
+#Because the observed difference is 5. the right side of the graph we use the ">"  greater than test to calculate p value 
+
+pvalue.month
+```
+The p value is really really small so we can reject the null in the favor of alternative. Therefore. we can say that there is enough evidence to indicate that the mean delay times between two months is statistically significant and are not equal. 
+
+## Question 3.6 
+
+
+```{r}
+
+
+Delay.20.carrier<- FlightDelays %>%
+  group_by(Carrier) %>%
+  mutate(Delay.20.carrier = (Delay >20))%>% 
+  #Creating a boolean for value if there are more than 20 minutes delay based on their career. 
+  summarize(Mean.delaycarrier = mean(Delay.20.carrier, na.rm = TRUE))
+head(Delay.20.carrier)
+
+FlightDelays <- FlightDelays %>% 
+mutate(Delay.20.carrier = (Delay >20)) 
+  
+```
+```{r}
+observed.delaycarrier = diff(Delay.20.carrier$Mean.delaycarrier)
+observed.delaycarrier   #So the difference in mean between two carrier for delay for more than 20 minute is 0.0435
+```
+Since it is a proportion with True and False Value, the proportion of late flights can be calculated through the mean. 
+
+```{r}
+N <- 10^4 -1 
+
+#sample.size = the number of observations in our sample
+sample.size = nrow(FlightDelays)
+sample.size
+
+group.late.carrier = nrow(FlightDelays[FlightDelays$Carrier == "UA",])
+group.late.carrier #So, the number of flight deom UA that had delayed flight of more than 20 minutes is 239 
+
+
+
+```
+
+```{r}
+
+result.delay20 <- numeric(N)
+
+
+for(i in 1:N)
+{  index = sample(sample.size, size=group.late.carrier, replace = FALSE)
+  result.delay20[i] = mean(FlightDelays$Delay.20.carrier[index]) - mean(FlightDelays$Delay.20.carrier[-index])
+}
+
+
+
+``` 
+
+```{r} 
+
+
+
+```
+
+
+```{r}
+
+p.value.delay20 = (sum(result.delay20 >= observed.delaycarrier) + 1)/(N + 1) * 2 
+
+p.value.delay20
+```
+
+```{r}
+
+#observed.carrier.trim <- (diff(Delay.20.carrier$Mean.delaycarrier))
+
+```
+
+part b, Variance 
+```{r}
+### left to calculate variance 
+
+ Variance.FlightDelays <- FlightDelays %>%
+  group_by(Carrier) %>%
+  summarize(Variance = var(Delay))
+
+Variance.FlightDelays 
+
+Variance.UA = Variance.FlightDelays$Carrier == "UA"
+
+#observed.variance = (Variance.FlightDelays$Variance[2]) / (Variance.FlightDelays$Variance[1])
+
+observed.variance = var(FlightDelays$Delay[FlightDelays$Carrier == "UA"])/var(FlightDelays$Delay[FlightDelays$Carrier == "AA"])
+
+observed.variance
+
+```
+```{r}
+N <- 10^4 -1
+
+#sample.size = the number of observations in our sample
+sample.size = nrow(FlightDelays)
+
+#group.1.size = the number of observations in the first group
+group.1.size = nrow(FlightDelays[FlightDelays$Carrier=="UA",])
+
+#create a blank vector to store the simulation results
+result <- numeric(N)
+
+#use a for loop to cycle through values of i ranging from 1 to N
+for(i in 1:N)
+{
+  index = sample(sample.size, size=group.1.size, replace = FALSE)
+
+  
+  result[i] = var(FlightDelays$Delay[index])/var(FlightDelays$Delay[-index])
+}
+
+
+#plot a histogram of the simulated differences
+#add a vertical line at the observed difference
+ggplot(data=tibble(result), mapping = aes(x=result)) + 
+  geom_histogram() +
+  geom_vline(xintercept = observed.variance, color = "red") 
+
+#Based on the histogram and the observed variance, we can conduct the test that result > observed and multiply it by 2 for two tailed tests. 
+
+#Calculate the p-value
+p.value.variance <- (sum(result >= observed.variance) + 1) *2 / (N + 1)
+
+p.value.variance
+
+
+```
+
+The p value that we get is 0.2714.With this p value we can determine that we cannot reject the null value.
+
+## Question 3.11 : Calculate Empirical Distribution Functions
+
+```{r}
+
+data("Phillies2009")   
+
+
+ls(Phillies2009) # looking at the available variables
+
+home.game <- Phillies2009 %>%
+  filter (Location == "Home") 
+home.game
+
+away.game <- Phillies2009 %>%
+  filter (Location == "Away")  
+away.game
+
+
+
+```
+Created a histogram with facet options as suggested in class instead of doing ecdf. 
+
+From the histogram below, we can see that when location is away, the distribution of data seems to follow a normal distribution. 
+Where as when we look at home data, there are multiple peaks and the distribution certianly doesnot look normal.
+```{r}
+ggplot(data=Phillies2009,mapping = aes(x= StrikeOuts)) + 
+  geom_histogram() +
+  facet_wrap(~ Location)
+```
+
+
+```{r}
+mean.home = mean((home.game$StrikeOuts), na.rm = TRUE)
+mean.home
+
+away.home = mean((away.game$StrikeOuts), na.rm = TRUE)
+away.home
+
+observed.home.away = mean.home - away.home
+observed.home.away
+
+
+#summarize (mean_late.UA = mean(Delay), na.rm = TRUE)
+```
+We can see that the mean number of strike out per game for the home is 6.95 and for the away games is 7.30. 
+The observed difference is -0.3580
+
+c. Calculate the permutation tests 
+```{r}
+N <- 10^4 -1 
+sample.size.games = nrow(Phillies2009)
+
+away.group1 = nrow(Phillies2009[Phillies2009$Location =="Away",])
+#The no of sample is this group is 81 and the sample size is 162. 
+
+result.location <- numeric(N)
+
+for (i in 1:N)
+{ 
+  index = sample(sample.size.games, size = away.group1, replace = FALSE)
+  result.location[i] = mean(Phillies2009$StrikeOuts[index]) -       mean(Phillies2009$StrikeOuts[-index])
+  }
+
+
+```
+
+
+```{r}
+ggplot(data=tibble(result.location), mapping = aes(x=result.location)) + 
+  geom_histogram(bins = 15) +
+  geom_vline(xintercept = observed.home.away, color = "red")
+```
+
+
+```{r}
+# Calculating the p value
+p.value.away <- (sum(result.location <= observed.home.away) + 1) *2 / (N + 1)
+p.value.away
+```
+WE use less than in the p value comparison because we are interested in the probability of the mean strikeouts difference that is less than observed because of the position of the red line. 
+We donot have sufficient evidence to reject the null because p value is 0.426. We, therefore, donot have enough statistical value to state the difference in means is statistically significant. 
+
+
+## Question no 3.14
+a)
+```{r}
+data("IceCream") 
+
+#View(IceCream) 
+
+```
+The data set is a matched pair because brands make both chocolate and vanilla ice cream, which means that the taste, calorie of the ice cream could depend on the brands that make them. Therefore, it is not entirely independent. 
+
+b)
+```{r}
+Vanilla <- summary(IceCream$VanillaCalories)
+Chocolate <- summary(IceCream$ChocolateCalories)
+Vanilla
+Chocolate
+```
+From the table above we can see that Vanilla calories has mean of 191.4 and median of 160.
+Chocolate has mean of 198.7 and median of 170.
+
+c)
+
+```{r}
+vanilla.mean = mean((IceCream$VanillaCalories), na.rm = TRUE)
+chocolate.mean = mean((IceCream$ChocolateCalories), namrm = TRUE)
+diff.ice.cal =  chocolate.mean - vanilla.mean 
+diff.ice.cal
+```
+The difference in mean of these calories is 7.33 
+
+```{r} 
+N <- 10^4 -1  
+result.calor.diff <- numeric(N)
+samplesize.icecream = nrow(IceCream)
+
+for ( i in 1: N)
+{
+  Sign <- sample (c(-1,1), samplesize.icecream, replace = TRUE)
+  result.diff <- Sign * diff.ice.cal
+  result.calor.diff[i] <- mean(result.diff)
+}
+
+
+```
+
+
+```{r}
+ggplot(data=tibble(result.calor.diff), mapping =   aes(x=result.calor.diff)) + 
+  geom_histogram(breaks=seq(-10,10,by=0.3)) +
+  geom_vline(xintercept = diff.ice.cal, color = "red")
+
+
+
+```
+Based on histogram and observed line, we can do < in the p value test so 
+
+```{r}
+p.value.icecream <- (sum(result.calor.diff >= diff.ice.cal) + 1)  / (N + 1)
+p.value.away
+```
+Since the value is 0.426, we donot have enough evidence to reject the null. Here, we donot multiply by 2 because we are evaluating if chocolate ice cream has more calories than vanilla. It is a one sided test so no need to multiply by 2 
+So, we donot have enough evidence to claim that chocolate ice cream has on average more calories than vanilla ice cream. 
+
+## Question 3.15 
+a)
+
+```{r}
+data("Groceries")
+
+#view(Groceries)
+
+```
+It is a matched pair data because it is the same product that is being sold across different grocery chains so if a product is at baseline expensive, it will be on average expensive compared to other products throughout so we cannot treat these samples as a independent samples 
+
+b) 
+
+```{r}
+summary(Groceries$Target)
+summary(Groceries$Walmart)
+```
+From the summary above we can see that on average(mean) of the price on Target is 2.76 and of walmart is 2.706. The median is 2.340 is Walmart and it is 2.545 is Target. We can therefore, imply that the center srpead tends to be higher in Target compared to Walmart. 
+
+c)
+```{r}
+walmart.mean = mean((Groceries$Walmart), na.rm = TRUE)
+Target.mean = mean((Groceries$Target), namrm = TRUE)
+diff.price =  walmart.mean- Target.mean
+diff.price 
+```
+The difference in price is of 0.056, so mean price in target is higher by 0.0566
+
+```{r}
+N <- 10^4 -1   
+result.price.diff <- numeric(N)
+samplesize.Groceries = nrow(Groceries)
+
+for ( i in 1: N)
+{
+  Sign.price <- sample (c(-1,1), samplesize.Groceries, replace = TRUE)
+  result.diff <- Sign.price * diff.price
+  result.price.diff[i] <- mean(result.price.diff)
+}
+```
+
+
+```{r}
+ggplot(data=tibble(result.price.diff), mapping =   aes(x=result.price.diff)) + 
+  geom_histogram(breaks=seq(-0.05,0.05,by=0.005)) +
+  geom_vline(xintercept = diff.price, color = "red")
+
+```
+The gap between in the histogram is incredibly difficult to break.
+
+```{r}
+p.value.price <- (sum(result.price.diff <= diff.price) + 1) *2 / (N + 1)
+p.value.price
+```
+The p value is really small so we can reject the null that there us no difference between the  mean prices. 
+
+d) 
+```{r}
+#view(Groceries)
+
+ggplot(data =Groceries, mapping = aes(x = Target - Walmart)) +
+  geom_histogram(breaks=seq(-1, 1, by=0.055)) +
+  facet_wrap(~ Product, nrow =5)
+
+  
+```
+WE can see that there is significant difference in the price for Quacker oats, where in the price for quaker oats in Walmart is significantly higher in Walmart.Thugh it is hard to observe from graph, when we look at the dataset itself, we can see that Quacker oats is an exception,
+
+
+```{r} 
+
+Groceries.final <-Groceries[!(Groceries$Product =="Quaker Oats Life Cereal  Original "),] #Removed the oats
+view(Groceries.final)
+```
+
+
+```{r}
+walmart.mean.f = mean((Groceries.final$Walmart), na.rm = TRUE)
+Target.mean.f = mean((Groceries.final$Target), namrm = TRUE)
+diff.price.f =  walmart.mean.f- Target.mean.f
+diff.price.f 
+```
+The difference in price is of -0.1558, so mean price in target is higher by 0.15586
+
+```{r}
+N <- 10^4 -1   
+result.price.diff.f <- numeric(N)
+samplesize.Groceries.final = nrow(Groceries.final)
+
+for ( i in 1: N)
+{
+  Sign.price.f <- sample (c(-1,1), samplesize.Groceries.final, replace = TRUE)
+  result.diff.f <- Sign.price * diff.price.f
+  result.price.diff.f[i] <- mean(result.price.diff.f)
+}
+```
+
+
+```{r}
+ggplot(data=tibble(result.price.diff.f), mapping =   aes(x=result.price.diff.f)) + 
+  geom_histogram(breaks=seq(-0.05,0.05,by=0.005)) +
+  geom_vline(xintercept = diff.price.f, color = "red")
+```
+```{r}
+p.value.price <- (sum(result.price.diff <= diff.price) + 1) *2 / (N + 1)
+p.value.price
+```
+Yes, we do reach the same conclusion that because the p vlaue is really small, we can reject the null that there is no significant price difference between walmart price and target prices. 
+
+```{r}
+library(nycflights13)
+
+
+delta_flights <- flights %>%
+filter(carrier=="DL")
+head(delta_flights, 10)
+
+delta_origin <- delta_flights%>% 
+  filter(origin == "EWR"| origin == "JFK" |origin == "LGA")
+```
+
+```{r}
+summary_dep_delay <- delta_flights %>%
+  group_by(origin) %>%
+  summarize(mean = mean(dep_delay, na.rm = TRUE)) 
+summary_dep_delay
+```
+We can see that the mean of delay happens when delta flights goes to EWR. 
+
+```{r}
+ggplot(data = delta_flights, aes(x = dep_delay, y = origin)) +
+  geom_boxplot()
+```
+From boxplot we can see that LGa also see that delay is concentrated across all origin flightd and all flights also have outliers. 
+
+
+```{r}
+EWR <- delta_flights %>%
+  filter (origin == "EWR")  %>%
+  summarize(meanEWR = mean(delta_flights$dep_delay))
+
+delay.EWR <- delta_flights %>%    
+ filter (origin == "EWR" )  %>%
+  summarize(meanEWR = mean(dep_delay), na.rm = TRUE)
+
+delay.JFK <- delta_flights %>%
+  filter (origin == "JFK" )  %>%
+  summarize (meanJFK = mean(dep_delay), na.rm = TRUE)    
+  
+diff_JFK_EWR <- (delay.EWR$mean_late.JFK - delay.EWR$mean_late.EWR)
+
+diff_JFK_EWR
+
+
+```
+
+
+``

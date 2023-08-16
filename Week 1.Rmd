@@ -1,0 +1,88 @@
+---
+title: "Week 1 Homework"
+author: "Samikshya"
+date: '2022-10-03'
+output: html_document
+
+
+## Homework 1 
+
+## Question Number 1.1. 
+a) Population: All high School students who watch show "Game of Thrones"
+   Sample: 1500 high school students who were surveyed
+   Statistics: 47% who watch the show 
+   
+b) Population: US population and their age distribution 
+   Parameter: 9.6% of US population ages of 18-24 
+
+c) Population: Rosters of all NBA team for 2006-2007 season 
+   Parameter: Average height of the population mentioned above is 78.93 inch 
+   
+d) Population: US adults who are 18 or older and their opinion on gender equality
+  Sample: 2106 national adult 
+  Statistics: 19% strongly or somewhat disagree with    statement that US has come a long way towards     reaching             gender equality. 
+  
+## Question number 1.2 
+a) The data represents the population. Since the Dept. of Correction has the data for all Iowa offenders in 2010 and tracked them through 2013. 
+b) It is a parameter. 
+
+## Question number 1.4
+a) The treatments were the group of people who were randomnly assigned to play Tetris in British Emergency room. 
+
+b) No, this was not a double-blind story because both patients and researcher knew who were playing tetris and who were simply log detailing their activties. 
+
+c) With the given information, No, the researcher cannot conclude that Tetris causes the reduction of painful memories. There could be a causation or correlation and more research needs to be done before relationship between Teris and formation of bad memories can be made. It is also important to see if there are other confounding variables that could have played a role like distractions etc. 
+   
+
+d) No. The sample size of 71 patients is too small to make a generalized statement. When we consider the treatment group and the control group, the sample gets even smaller. There is potential for bias as well since all data collected from one emergency room location.
+
+## Question no 1.8
+
+a) Ther study is called experiment because the researcher is controlling one of the variables mobile multiplier to manipualte the ROI, and studying the effect of this variable change on the result. 
+
+b) Yes. They can claim it because in a controlled settings, they manipulated certain variables to observe its impact. 
+c) No. While they were able to conduct a controlled experiment since the sample was not truly randomized and there were selection bias in the sample( people needed to be opted in to the program), more robust tes, in my opinion, is required bedore Google can generalize their results to all advertisers. 
+
+## Question 1.11 
+
+a. No, the 0 doesnot adequately reflect the magnitute of the differences in these scenarios. This is because error of what -1 means in ratio is that the desktops (cost/value) is higher than that of mobile(cost/value). This could happen in different scenarios, if mobile (desktop/value) is incredibly small or if desktop(cost/value) is high. These gaps are not indicated when 0 is assigned if the ad value isnot acheived. 
+
+b. I think one of the ways could be to use percentage. Of the total cost incurred, what % of this cost in returned through value. This way, you can have more than 100% return, i.e the advertisement was successful and you got more than your cost, if there was no value added that you lost your cost(i.e investment).
+
+## Non-textbook problem
+
+```{r}
+library (dplyr)
+library (ggplot2)
+library (nycflights13) 
+
+glimpse(flights)
+
+flight_org_EWR <- flights %>% 
+  filter((origin == "EWR")  & (carrier == "EV" | carrier == "UA")) %>% #Setting up a new variable based on conditions set
+  mutate(late =ifelse(dep_delay > 0, 1,0))%>%              #Creating a boolean; assigning values 0 and 1  if the departure delay is greater than 0 min  
+  mutate(very_late = ifelse(dep_delay > 30,1,0))           #Creating a boolean; assigning values 0 and 1  if the departure delay is greater than 30 min
+ 
+glimpse(flight_org_EWR)
+
+summary_prop_late <- flight_org_EWR %>%   
+  group_by(carrier) %>% 
+  summarize(prop_late = mean(late, na.rm = TRUE),mean_very_late = mean(very_late, na.rm = TRUE))
+  
+summary_prop_late
+
+
+```
+
+46.2% of EV flight that originated from EWR were late (i.e their departure was delayed by more than 0 minutes.)
+among these, 23.0% were late by more than 30 minutes. 
+
+Similarly, the proportion of UA flights that were departured late from EWR was 0.498 i.e 49.8% of their flights was late . Among them, 13.5% were late by more than 30 minutes. 
+
+
+
+
+
+
+
+

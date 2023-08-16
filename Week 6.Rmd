@@ -1,0 +1,393 @@
+---
+title: "Homework 6"
+author: "Samikshya"
+date: "2022-11-05"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library (ggplot2)
+library(resampledata)
+```
+
+## Question 8.1 
+
+```{r}
+Mean <-(9.2-9.5)/(1.1/sqrt(19))
+Mean
+
+#Because the null hypothesis states that the weights between women in rural community are different, it is a 2 tail test. Therefore, 
+
+p.value.calcium <- 2*pnorm(Mean)
+p.value.calcium
+```
+The t score is -1.18 and the p value is 0.2345. Therefore, we can statistically claim that the average calcium level in rural community is not different. There is not statistical evidence to reject the null hypothesis, i.e the calcium level for women in rural communities are not different that of the healthy levels. 
+
+## Question 8.5
+
+```{r}
+data(Walleye)
+glimpse(Walleye)
+
+ggplot( data = Walleye, mapping =  aes(x= Weight ))+
+  geom_histogram()
+
+#It has a skewed distribution with right tail. 
+```
+```{r}
+qqnorm(Walleye$Weight,
+         ylab = "Weight of Walleye")
+
+qqline(Walleye$Weight)
+```
+From both the graph above, we can see that it is skewed as the right. Both histogram shows data has right tail. Even on the quantile normal plot, towards the right the plot stay  away from the line so the data is right skewed. 
+
+b) 
+
+From the statistics test
+
+```{r}
+Weight <- Walleye$Weight
+observedT <- t.test(Weight, mu = 2.5)$statistic
+xbar <- mean(Weight)
+n<- length(Weight)
+#n
+N <- 10^5
+
+Tstar <- numeric(N)
+for (i in 1: N)
+{
+  bootx <- sample(Weight, n, replace = TRUE)
+  Tstar[i] <- (mean(bootx)-xbar)/(sd(bootx)/sqrt(n))
+}
+
+hist(Tstar)
+abline( v = observedT)
+
+a<- (sum(Tstar <= observedT) + 1)/(N+1)
+a
+#a.final <- 2*pt(q=a, df=59, lower.tail=FALSE)
+
+Test.statistic <- t.test(Weight, mu = 2.5, alt = "less")
+Test.statistic
+
+```
+From the statisitcs test, the p value is 0.054. We would fail to reject the null in favor of null. However, the p vlaue is on the border of 0.05 which we would use as a cut offpoint. From the t test the p value is 0.026. WE would therefore, reject the null is favor of alternative and conclude that the mean weight is different. We see discrepancy in results when we compare bootstrap with t test. 
+
+##Question 8.7
+
+```{r}
+Whitewater <- c(0.26, 0.263, 0.267, 0.281, 0.288,0.297,0.315,0.315,0.380)
+Wirth <- c(0.226,0.232,0.246,0.249,0.256,0.275,0.283,0.302)
+
+Whitewater.mean<- mean(Whitewater)
+Wirth.mean <- mean(Wirth)
+
+n1 = length(Whitewater)
+n1
+n2 = length(Wirth)
+n2
+#Test method 1 
+t.test <- (Whitewater.mean - Wirth.mean)/sqrt((sd(Whitewater)^2/n1)+ (sd(Wirth)^2/n2))
+t.testf <- 2*pt(q=t.test, df=17, lower.tail=FALSE)
+t.testf
+#Test method 2 
+final <- t.test(Whitewater, Wirth)
+final
+```
+From both test results, the p value is 0.029 so we can reject the claim that both dataset have same mean mercury levels. we can statsitcally claim that the mean mercury levels differ. 
+
+##8.8
+
+```{r}
+Spruce <- Spruce
+#glimpse(Spruce)
+Spruce.t.test <- t.test(Di.change~ Competition , data = Spruce) 
+Spruce.t.test
+```
+From the t test above, we can see that the p value is less than 0.0001. Therefore, we can statistically claim that the average diameter differ when they have competitions and when they dont during the 5 year period. 
+b)
+If they were assigned randomnly to different competition groups than we can conclude that removing weeds causes the  diameter to grow larger. 
+
+## Question 8.10 
+
+```{r}
+quetzal <- Quetzal
+#glimpse(quetzal)
+quetzal.nest <- quetzal %>% 
+  group_by(Country) %>%  
+  summarize(mean = mean(Nest, na.rm = TRUE))
+quetzal.nest
+
+
+```
+The mean nest heights in Costa Rica is 6.28 and of birds in Guatemela is 10.88
+
+
+
+```{r}
+ggplot (data = quetzal, mapping = aes(x= Nest)) +
+  geom_histogram(bins = 40)+
+  facet_wrap(~Country)
+
+
+```
+We can see that the distribution of nest height is very granular.
+
+b)
+Null Hypothesis: There is no statistical difference in mean
+Alternative: There is statistical difference in mean heights of the nest between two countries 
+It is a 2 tail test. 
+
+```{r}
+nest.difference = t.test(Nest ~ Country, data = quetzal)
+nest.difference
+```
+We can see that the p value is 0.04083. Since the p value is less than  0.05, we can statistically claim that there is mean difference in the mean height of the nest between two countries. 
+
+c) 
+```{r}
+ggplot(data = quetzal, aes (x = Country, y = Nest))+
+  geom_boxplot()
+```
+We can see that outlier is in Guatemala where one value plot is outside of the box plot upper margin. 
+Removing the outlier and conducting t test, 
+
+```{r}
+#Creating the upper and lower quartile range for country in Guatemela based on boxplot
+
+quetzal.Guatemala <- quetzal %>% 
+  filter(Country == "Guatemala")
+lower<- quantile(quetzal.Guatemala$Nest, 0.25)
+upper<- quantile(quetzal.Guatemala$Nest, 0.75)
+lower
+upper
+#Creating IQR
+IQR.guatemela <- IQR(quetzal.Guatemala$Nest)
+IQR.guatemela
+#Creating a new subset where we remove the outliers
+Guatemela_nooutliers <- subset(quetzal.Guatemala, quetzal.Guatemala$Nest > (lower - 1.5*IQR.guatemela) & quetzal.Guatemala$Nest < (upper +  1.5*IQR.guatemela))
+
+max.value <- max(Guatemela_nooutliers$Nest)
+max.value #Confirming to check that the previous value max of 24 is dropped. 
+```
+
+```{r}
+#Conducting a box plot to see if the previous value is dropped and it is dropped.
+ggplot(data = Guatemela_nooutliers, aes (x = Country, y = Nest))+
+  geom_boxplot()
+```
+
+
+```{r}
+#Conducting new t test  between the Costa Rica and the new dataframe created in Guatemela by dropping the max value
+new.t.test <- t.test (quetzal$Nest[quetzal$Country =="Costa Rica"],Guatemela_nooutliers$Nest )
+new.t.test
+```
+
+NOw, after removing the outliers, the mean of the nest is 0.0652. We, therefore, donot have enough statistical evidence to reject the null. 
+
+
+## Question 8.11. 
+```{r}
+salaries <- Salaries
+#glimpse(salaries)
+mean.salaries1985 <-mean(salaries$Salary[salaries$Year == "1985"])
+mean.salaries1985
+sd1985 <- sd(salaries$Salary[salaries$Year == "1985"])
+sd1985
+mean.salaries2015 <- mean(salaries$Salary[salaries$Year == "2015"])
+mean.salaries2015
+sd2015 <- sd(salaries$Salary[salaries$Year == "2015"])
+sd2015
+```
+So, the mean and standard deviation of the salary of baseball players in 1985 is 0.9793 million and 0.6573 respectively.
+The mean and standard deviation of the salary of baseball players in 2015 is 1.7389 million and 2.190 respectively
+
+```{r}
+qqnorm(salaries$Salary[salaries$Year == "1985"],
+        ylab = "Salary in 1985")
+
+qqline(salaries$Salary[salaries$Year == "1985"])
+```
+```{r}
+qqnorm(salaries$Salary[salaries$Year == "2015"],
+        ylab = "Salary in 2015")
+
+qqline(salaries$Salary[salaries$Year == "2015"])
+
+```
+Salary in 2015 seems more skewed and far from nornal distribution comapred to the salary distribution in 1985.
+
+
+b)
+
+```{r}
+#print(length(unique(salaries$Year))). There are two unique values of the year
+t.test.salary <- t.test (Salary ~Year, data = salaries)
+t.test.salary
+```
+
+The mean value of the salary difference in two years is 0.04576. With this, we can statistically claim that there is difference in mean salaries between the year 1985 and 2015.
+
+```{r}
+observed.salarydiff <- mean(salaries$Salary[salaries$Year =="2015"])- mean(salaries$Salary[salaries$Year =="1985"])  #Observed salary difference = 0.7596
+observed.salarydiff                            
+N <- 10^5
+group.1.size <- nrow(salaries[salaries$Year == "2015",])
+sample.size = nrow(salaries)
+
+test.salarydiff <- numeric(N)
+
+for (i in 1:N)
+  {
+  index = sample(sample.size, group.1.size, replace = FALSE)
+  test.salarydiff[i] <- mean(salaries$Salary[index]) - mean(salaries$Salary[-index])
+}
+```
+
+
+```{r}
+#Calculating the p value 
+
+pvalue.salarydiff <- 2* (sum(test.salarydiff >= observed.salarydiff)+1)/(N+1)
+pvalue.salarydiff
+
+
+```
+The p value is 0.0642. Therefore, we donot have enough statistical evidence to claim that there is mean salary difference between the baseball players in 2015 and 1985.
+
+d)
+I would report the permutation test result because the data set is skewed and as observed in the diagram it is not normally distributed. SO, permutation test result is more reliable.
+
+
+## Question 8.12
+```{r}
+#For salary distribution using two sample:
+
+Salary.1985 <- subset(Salaries, Salary, subset = Year == 1985, drop = T)
+Salary.2015 <- subset(Salaries, Salary, subset = Year == 2015, drop = T) 
+
+Tstatistic <- function(x,y, mu)(mean(y) - mean(x) - mu)/
+                              sqrt(var(y)/length(y) + var(x)/length(x))
+
+ObservedT2 <- Tstatistic(Salary.1985, Salary.2015, 0)
+thetaHat <- mean(Salary.2015) - mean(Salary.1985)
+n1 <- length(Salary.1985)
+n2 <- length(Salary.2015) 
+
+N <- 10^5 - 1 
+Tstar1 <- numeric(N) 
+set.seed(5)
+
+for (i in 1:N){
+  boot1 <- sample(Salary.1985, n1, replace = TRUE)
+  boot2 <- sample(Salary.2015, n2, replace = TRUE)
+  Tstar1[i] <- Tstatistic(boot1, boot2, thetaHat )
+  
+}
+
+hist(Tstar1)
+abline(v = ObservedT2)
+```
+
+
+```{r}
+p.value.salaries <- 2*(sum(Tstar1 >= ObservedT2) +1)/(N + 1)
+p.value.salaries
+```
+The p value is 0.0145. This p value is significant and we would have rejected the null in favor of alternative. Bootstrap test here is the better alternative because, permutation is a reliable test only when we can assume that variance is equal. As we saw from graph above,2015 has a scattered right tail which can make permutation test inaccurate. 
+
+
+
+## Question 8.15
+p =0.266
+n =310
+p hat <- 
+```{r}
+p =0.266
+n =310
+p_hat <- 69/310
+
+highschool_proptest <- prop.test(p_hat, n, p =0.266, alt = "less" )
+highschool_proptest
+
+#Now, we we do binomial test, 
+#highschool_btest <- pbinom(69,310,0.26)
+#highschool_btest
+```
+The p value with proportional 0.266. Since if the null hypothesis was true, the probability of seeing the test statistics is 26%, we cannot reject the null in favor of alternative. So, wecannot rule out the possibility that the percentage is the same. 
+
+## Question 8.16 Why not do the prop test?  
+```{r}
+#Midwest region support for  same sex marriage:
+p_midwest <- 343 #62% 552. Since human cant be continuous, rounded the value of 342.24 to 343)
+n_midwest <- 552
+# In the west:
+p_west <- 393 #68% of 577 roundd to 393 )
+n_west <- 577
+#Conducting a prop test to see if the difference is significant by conducting a prop test, 
+support_prop.test <- prop.test(c(343, 393), c(552,577))  #62%
+support_prop.test
+
+```
+The p value is 0.041. Therefore if the null hypothesis is true, the probability of observing the difference in support is 4.1%. Therefore, we can reject the null and claim that there is difference in support for same sex marriage across regions. 
+
+## Question 8.23 
+ limit = 10
+ Alternative: arsenic level is much higher than 10.
+ n = 15
+ 
+a) Type  I error occurs when you reject thenull even though the null is true, so Type 1 error occurs when even though the community levels have arsenic level of accepted standard (10), we claim that the community has higher arsenic level. This can have consequences in terms of panic in the community and extra funds required to retest the arsenic level. 
+
+Type II error occurs when we fail to reject the null when null is incorrect. So, we fail to state the the local community has higher arsenic level than standard when community has infact higher arsenic level. The practical consequences of making this error is that the community would be intaking arsenic more than the level set and can lead to future health problems. 
+ 
+b)
+It is difficult to say because t distribution closely follows normal distribution when n is large or the dataset is not heabily skewed. 
+
+##8.24
+
+```{r}
+#First we need to calcualte the mean that we collect when we reject the null. Since our alternative is u?25, 
+#xbar - mean/4 aqrt 30 >= 1.645 (since alpha is 0.05)
+# critical region = 
+ X <- 1.645 *(4/sqrt(30)) + 25
+X
+```
+The x is 26.20, now assuming that the real mean is 27, then 
+power = probabiltiy to rejecting null when null is false, 
+sp p(x-27/(4/sqrt30))> = 26.20-27/(4/sqrt(30))
+
+```{r} 
+z<- (26.20-27)/(4/sqrt(30))
+z
+p <- pnorm(z, lower.tail = FALSE)
+p
+```
+So we need p value with z score of =1.0995. The p value is 0.863. Therefpre, the power is 0.86
+
+## Question 8.25 
+
+```{r}
+
+#First calculating the critical value 
+qnorm(0.99)
+qnorm(0.90)
+```
+AS it is a one sided test, the z score comes to 2.326. Now, calculating the c value, 
+c = 2.326* 0.3/sqrt(n) + 1 (The mean value)
+C = 0.6978/sqrt(N) + 1 
+
+Now, we want the value of n with mean of 1.2 and 90% confidence so, 
+
+1.282 = (1-1.2)/0.3/(n)+ 2.326
+-1.044 = 0.2*sqrt(n)
+5.3 = sqrt(n) 
+Therefore n is 28.09. SO the population of sample needs to be more than 29 and atleast 30. 
+
+```{r}
+```
+

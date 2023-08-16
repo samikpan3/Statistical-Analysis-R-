@@ -1,0 +1,314 @@
+---
+title: "Homework 3"
+author: "Samikshya"
+date: "2022-10-17"
+output: html_document
+---
+
+##Question no 4.6 
+
+```{r}
+library (resampledata)
+library (ggplot2)
+library(dplyr)
+library (tidyverse)
+```
+
+```{r}
+data("Recidivism") #using the dataset recidivism 
+
+N <- 10^4 -1 
+phat <- numeric(N)
+for (i in 1:N)
+{
+samp <- sample(Recidivism$Recid, 25)
+phat[i] <- mean(samp == "Yes") # proportion yes
+}
+```
+
+4.6 a) 
+
+```{r}
+ggplot(data=tibble(phat), mapping = aes(x=phat)) +
+geom_histogram(bins = 20, color="white")
+
+```
+
+From the histogram above, we can see that the sample is closely following a normal distribution. 
+
+```{r}
+sim.mean <- mean(phat) #mean is 0.317 
+sim.mean
+#Standard Error: 
+sim.st <- sd(phat) #Standard Error = 0.093059
+sim.st
+
+```
+b) 
+So, according to the theory, the estimate of the standard error is 0.093 
+```{r}
+theory.sE <- sqrt((0.316 * (1-0.316))/25)
+theory.sE  # The standard errir estiamted is 0.093                 
+```
+
+
+In this case, the standard error calculated is same as the simulated one. 
+          
+c)
+
+```{r} 
+data("Recidivism") #using the dataset recidivism 
+
+N <- 10^4 -1 
+phat.250 <- numeric(N)
+for (i in 1:N)
+{
+samp <- sample(Recidivism$Recid, 250)
+phat.250[i] <- mean(samp == "Yes") # proportion yes
+}
+```
+
+
+```{r}
+ggplot(data=tibble(phat.250), mapping = aes(x=phat.250)) +
+geom_histogram(bins = 20, color="white")
+
+```
+When we use the sample of sizes to be 250, the distribution also look normal 
+```{r}
+mean(phat.250) #mean is 0.316
+#Standard Error: 
+sd(phat.250)  #Standard error is 0.0291
+```
+By Theory, 
+Standard error = (0.316*0.684)/250 
+              = sqr root of 0.000864576
+              = 0.0294
+
+The standard error is equal to 3 decimal places. 
+```{r}
+se.250 <- sqrt((0.316 * (1-0.316))/250) 
+se.250  # The thorotical SE is also 0.029 which is simialr to simulated mean 
+```
+We can see that the SE is significantly low (0.093 compared to 0.029) when the sample size is increased to 250 from 25. This tells that as the sample size increases, the standard error reduces. 
+
+## Question 4.7
+```{r}
+data("FlightDelays")
+
+ggplot(data=FlightDelays, mapping = aes(x= Delay)) +
+geom_histogram(bins = 40)
+```
+
+
+```{r}
+mean.delay <- mean(FlightDelays$Delay)
+Sd.delay <- sd(FlightDelays$Delay)
+mean.delay
+Sd.delay
+#The mean delay value was 11.7379
+# SD was 41.6305
+
+```
+b)
+
+```{r}
+
+samples <- nrow(FlightDelays)
+N <- 10^4 -1 
+delay.mean <- numeric(N)
+
+for(i in 1:N)
+{
+  ddelay <- sample(FlightDelays$Delay,25 )
+  delay.mean[i] <-mean(ddelay)
+}
+
+#plot a histogram of the simulated values
+ggplot(data=tibble(delay.mean), mapping = aes(x=delay.mean)) +
+geom_histogram(bins = 60) 
+
+
+```
+```{r}
+mean.delaysimulated = mean(delay.mean)
+mean.delaysimulated  #Mean is 11.767
+sd.delay.simulated = sd(delay.mean)
+sd.delay.simulated  #Sd is 8.2485
+
+```
+The simulated sampling distribution of x mean follows a normal distribution but it looks like it is positively skewed (It is skewed towards the right.) 
+
+c) 
+From the theoretical calculation, the standard error is 41.6305/sqr 25 which is 8.3261
+
+d) 
+
+Using sample size of 250 instead of 25 
+
+```{r}
+samples <- nrow(FlightDelays)
+N <- 10^4 -1 
+delay.mean250 <- numeric(N)
+
+for(i in 1:N)
+{
+  ddelay <- sample(FlightDelays$Delay,250 )
+  delay.mean250[i] <-mean(ddelay)
+}
+
+mean.delaysimulated = mean(delay.mean250)
+mean.delaysimulated 
+sd.delay.simulated = sd(delay.mean250)
+sd.delay.simulated
+```
+Here, from a theoretical perspective the SE is 2.6329. The simulated standard error is 2.548663 
+
+```{r}
+SD.delay250  <- 41.6305/ sqrt(250) 
+SD.delay250 #SD theoritical is 2.548
+```
+We can see that as the sample size increases, the standard error reduces as well. 
+
+##Question 4.10
+
+The z score is 1.8257. The p value therefore, based on the z score table lies in between 0.0344 & 0.0336. If we convert the z score to 2 decimal place, then z score is 1.83 and therefore the p value is 0.0336.
+Therefore, with the given sample of 30 boys, the probability that the mean height would be 51 in is 3.36%  
+
+Using R, we can also see that probability calculated is 0.0339 i.e probability is 3.39. Which is very similar to when calculated with z score.
+
+```{r}
+probability = 1- pnorm(51, 48, 9/sqrt(30))
+probability
+```
+From the R
+##Question 4.16
+
+a. The expected value in an exponential distribution is 1/lamda. 
+Therefore, the expected value is 10
+
+b)
+```{r}
+Xmean <- numeric(1000)
+
+for(i in 1:1000)
+{
+
+current_sample <- rexp(30, rate = 1/10)
+
+#store the mean of the five observations
+Xmean[i] <- mean(current_sample)
+}
+
+```
+
+```{r}
+mean(Xmean)
+sd(Xmean)
+mean(Xmean >= 12) 
+
+```
+From calculation above, we can see that the mean of the simulated sample is 9.973 and the Standard error is 1.8205. The probability that sample mean is large or larger than 12 is 0.13. 
+
+```{r}
+ggplot(data=tibble(Xmean), mapping = aes(x=Xmean)) +
+geom_histogram(bins = 60) 
+```
+
+We can see that the graph is fairly normally distributed. With mean of 10, probability that the mean would be greater than or equal to 12 is only 14%. Since the p value of this is less than 0.05, I dont think this is unsual. 
+
+##Question 4.17
+
+Assuming that both distribution is iid, we get W are normal distribution with mean of 7 and SD of 5.
+(Calculation is on the scratch paper uploaded) 
+```{r}
+#mean.w = a. Ux + b.Uy
+mean.w = (1* 15) - (2*4)
+mean.w   #The mean of w is 7 
+
+#variance.w = a^2.(Sdx)^2 + (b^2)*(sdY)^2 
+variance.w = ((1)^2 * 3^2) + ((-2)^2 * (2)^2)
+variance.w #The variance is 25
+
+#The SD is 5 
+# w is norm(7,5)
+
+
+```
+
+
+Running the stimulation, 
+
+```{r}
+set.seed(1000)
+
+current_sample_X <- rnorm(1000, mean = 15, sd = 3)
+current_sample_y <- rnorm(1000, mean = 4, sd = 2)    
+
+w <- current_sample_X - (2 * current_sample_y)
+
+
+#plot a histogram of the simulated values
+ggplot(data=tibble(w), mapping = aes(x = w)) +
+geom_histogram(color="white") 
+```
+```{r}
+wmean = mean(w)
+wmean #Mean is 6.95
+SD.w = sd(w)
+SD.w #SD is 4.811
+```
+So the mean of W calculated is 6.86 and the standard deviation is 4.91 which is close to theoretical mean and SD of 7 and 5 respectively.   
+
+Simulated y 
+
+```{r} 
+
+y = pnorm(10, mean = wmean, sd = SD.w) 
+y 
+
+#theory 
+mean (w <= 10)
+
+
+```
+The p value is 0.736 
+So when we compare both values ,they are approximately same at 3 decimal places. 
+
+## Question 4.28
+a) 
+
+Calculate f(x) min is n*(1-(F(x)^n-1) * F(x) 
+   our given f(x) is 3x^2 , so to calcualte the cdf i.e F(x), we need to integrate the 3x^2 
+   integration of 3t^2 is 3t^3/3 = t^3 
+   
+   Therefore, the minimum us n*((1-t^3))^n-1. 3X^2 
+   
+b) maximum: 
+    maximum = n.F(x).f(x) 
+    n*(t^2)^n-1* 3 t^2 
+    = n.t ^2n* t ^-2 * 3*t ^2 
+    = 3*n*t^(2n) 
+    
+c) Calculating the fx(max) where the value of x is 0.92 
+  From the formula, we know that the FX is x^3 and F(x<= max) is Fx^n 
+  so max is (x^3) ^n 
+```{r}
+# max <- ((0.92)^3)^10  = o.92^30
+maxf <- (0.92)^30
+maxf
+
+
+          
+```
+So, maxf is 0.081 but since we are interested in greater than 0.92, we need to subtract the probabiltiy from 1 
+```{r}
+Prob <- 1 - maxf 
+Prob
+```
+Therefore, the probability is 0.918
+
+    
+
+
+

@@ -1,0 +1,317 @@
+---
+title: "Homework 9"
+author: "Samikshya"
+date: "2022-12-03"
+output: html_document
+---
+
+Homework 9: 
+10.3, 10.6, 10.10, 10.13, 10.17, 10.18
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(resampledata)
+```
+
+
+
+## Question 10.3
+a) 
+```{r}
+race_enhance <- matrix(c(829, 1262,1442,57,126,215,79,136,159),byrow = T, nrow = 3) 
+row.names(race_enhance)<- c("morally acceptable","morally unacceptable", "Not sure" )
+colnames(race_enhance) <- c("White", "Black", "Hispanic")
+race_enhance
+
+```
+Hnull: There is  association between race/ethnicities and whether this person thinks use of synthetic blood substitutes is morally acceptable. 
+
+Halternative = There is no relationship between race/ethnicity and belief about morality of sunthetic blood use for enhancement of human abilities
+b)
+
+
+```{r}
+
+race_test <- chisq.test(race_enhance)
+race_test
+race_test$expected
+
+```
+We cna also calculate expected by by sum of row*sum of column/total, so for white (morally acceptable) it would be 965*3533/4305 = 791.95 i.e 792 as seen for the table above.USing this calcualted the table below:
+
+```{r}
+race_enhance_expected <- matrix(c(792, 1251,1490,89,141,168,84,132,158),byrow = T, nrow = 3) 
+row.names(race_enhance_expected)<- c("morally acceptable","morally unacceptable", "Not sure" )
+colnames(race_enhance_expected) <- c("White", "Black", "Hispanic")
+race_enhance
+#round(expected_race, digits = 0)  #Round off because it is a person so needs to be whole numbers
+
+
+```
+
+
+
+From table above, we can see the calculated value of the expected values for each of the value in the table. 
+
+c)
+
+```{r}
+c = (((829-792)^2/792)+ ((1262-1251)^2/1251)+ ((1442-1490)^2/1490)+ ((57-89)^2/89)+ ((126-141)^2/141)+((215-168)^2/168)+((79-84)^2/84)+((136-132)^2/132)+((159-158)^2/158))
+c
+```
+The test statistic calculated by equation 10.1 is 30.0469. The df is (nrow -1 )* (ncol - 1) so df = 2 * 2 = 4 
+
+From the chi sqaure above, X-squared = 30.216, df = 4, p-value = 4.423e-06. So, since th p value is really small, we can reject the null in favor of alternative. So, we can say that there is association between race and how people view the morality of use of synthetic blood to enhance human abilties. 
+
+## Question 10.6
+
+```{r}
+glimpse(Cereals)
+```
+a) Create a table age of target and shelf 
+
+```{r}
+age <- Cereals$Age
+shelf_loc <- Cereals$Shelf
+
+children_cereals <- table(age, shelf_loc)
+addmargins(children_cereals)
+```
+b)
+
+```{r}
+cereals_children <-chisq.test(children_cereals)
+cereals_children
+```
+c) expected count is:
+ 9 * 17/43 for first value of first column. Using similar apporach to calculate expected out come for all 
+ 
+```{r}
+#Calculating the expected values 
+expected_cereals <- c(((9*17)/43), ((19*17)/43), ((15*17)/43),((9*26)/43),((19*26)/43),((15*26)/43))
+expected_cereals
+```
+
+
+```{r}
+children_cereals_expected <-rbind(c(3.55, 7.51, 5.93), c(5.44,11.4,9.06)) #binding the values created for each values 
+
+row.names(children_cereals_expected)<- c("adult","children")
+colnames(children_cereals_expected) <- c("bottom", "middle", "top")
+children_cereals_expected
+test <- chisq.test(children_cereals)
+test
+```
+
+The small number of expected counts leads to warning. p value really small so wecan reject the null. There is evidence that target consumer and placements are dependent. 
+```{r}
+```
+ 
+## Question 10.10
+a)
+```{r}
+glimpse(GSS2002)
+```
+
+```{r}
+happy <- GSS2002$Happy
+president <- GSS2002$Pres00
+happy_president <- table(happy, president)
+addmargins(happy_president)
+```
+
+b)
+Gender and president
+```{r}
+gender_pres <- chisq.test(GSS2002$Gender, GSS2002$Pres00)
+gender_pres
+```
+From the chi sqaure above, we can see that the p value is really small so we can reject the null that gender has no impact on president choice on 2000. There is evidence that gender and choice for president in 2002 are dependent. 
+
+c) 
+Using permutation test: 
+
+```{r}
+#Creating new dataframe: 
+
+
+gender <- GSS2002$Gender
+pres_2000 <- GSS2002$Pres00
+
+
+pres_gender.table <- table(gender, pres_2000)
+pres_gender.table
+```
+```{r}
+pres_test <- chisq.test(pres_gender.table)
+observed_pres <- pres_test$statistic
+
+N <- 10^4 -1 
+
+result_pres <- numeric(N)
+for ( i in 1:N)
+{
+  pres.permuted <- sample(pres_2000)
+  pres_gender_permuted <- table(gender, pres.permuted)
+  result_pres[i] <- chisq.test(pres_gender_permuted)$statistic
+  
+}
+
+p_value_pres <- (sum(result_pres >= observed_pres)+ 1)/(N + 1)
+p_value_pres
+```
+
+The p value is 1e - 04. So he p value is really small, and we can reject the null in favor of alternative and say that the there is not enough statistical claim that gender has no impact on presidential choice for 2002.
+
+## Question 10.13
+
+a. Marginal probability do not change ( if every value is increased by only c then it doesnot change the calculation) and the degress of freedom will not change either(df is row-1 *col -10)
+b) P value will be smaller so it will be more likely that we will reject the null in favor of alternative and conclude that there is association. 
+
+## Question 10.17 
+
+
+
+```{r}
+data <- c(16.21, 16.96, 17.07, 17.81, 19.66, 21.16, 21.95, 22.76, 23.81, 23.94,24.12, 24.26, 25.10, 25.15, 25.22, 25.47, 25.62, 25.91, 27.34, 27.51,28.05, 28.67, 28.76, 28.89, 28.93, 29.45, 29.54, 29.64, 30.38, 30.60,31.49, 31.52, 32.25, 32.26, 32.40, 32.52, 32.54, 32.66, 33.01, 33.02,33.91, 34.32, 34.83, 34.88, 34.93, 35.05, 35.33, 35.84, 36.18, 36.33,37.27, 37.84, 38.24, 38.33, 38.42, 38.74, 38.83,40.87, 41.77, 43.91)
+
+range_data <- summary(data)
+print(range_data)
+
+total <- length(data)
+total
+```
+So the min and max of given data is 16.21 and 43.91 and their are total 60 values 
+
+```{r}
+data <-tibble(data)
+A <- data %>%
+  filter(data < 16.6)
+
+B <- data %>%
+  filter(data < 22.5 & data > 16.6)
+C <- data %>%
+  filter(data < 27.5 & data > 22.5)
+D <- data %>%
+  filter(data < 33.4 & data > 27.5)
+E <- data %>%
+  filter(data > 33.4)
+  
+cat_1 = count(A)
+cat_2 = count(B)
+cat_3 = count(C)
+cat_4 = count(D)
+cat_5 = count(E)
+
+
+
+
+```
+
+```{r}
+data_count <- matrix(c(cat_1,cat_2,cat_3,cat_4,cat_5),byrow = T, nrow = 1) 
+row.names(data_count)<- c("observed_count" )
+colnames(data_count) <- c("< 16.6","16.6 - 22.5", "22.5-27.5", "27.5 - 33.4", "> 33.4" )
+data_count
+```
+```{r}
+total = 1+6+12+21+20
+total
+data_expected <- rep (60*0.2, 5)
+observed <- c(1,6,12,21,20)
+#data_expected
+
+#Normal 
+c<- sum((observed  - data_expected)^2/data_expected)
+c
+value <- 1-pchisq(c, 3)
+value
+```
+The p value is <0.05 so we can reject the null that the dataset comes from normal distribution. The data didnot come from a normal distribution of mean 25 and sd 10
+
+b) 
+```{r}
+qnorm(c(0.2,0.4,0.6,0.8,1), 30.324,6.54) 
+count_Expected <- rep(60*0.2, 5)
+count_observed2 = c(12,9,11,15,13)
+exp <-c(12,12,12,12,12)
+exp_count <- rep(12,5)
+
+df = 2 
+value <- sum((count_observed2-exp_count)^2/(exp_count))
+value 
+```
+```{r}
+p_val_new <- 1-pchisq(value ,2)
+p_val_new
+```
+p vaue is 0.434 so we cannot reject the null. WE can say that the data is from normal distribution. 
+
+
+## Question 10.18
+
+```{r}
+glimpse(Phillies2009)
+```
+
+```{r}
+#Counting the number of occurance in the column Doubles 
+
+count_doublerun <- table(Phillies2009$Doubles)
+#count_doublerun
+
+#Counting for greater than 4: 
+doublerun <- matrix(c(26,41,45,21,18), byrow = T, nrow = 1)
+rownames(doublerun) <- c("Observed")
+colnames(doublerun) <- c("0", "1", "2", "3", ">4")
+
+sum_total <- 26+41+45+21+18
+sum_total
+
+
+doublerun
+```
+```{r}
+#Calulating expected count for each variable: 
+
+poisson <- ((26*0)+(1*41) + (2*45) + (3*21) + (4*18))/151
+poisson
+
+
+#expected <- function(x)
+ # {
+  #return ((exp^ - poisson)*poisson*x)/factorial(x)
+#}
+
+
+```
+So our value of lamda is 1.762
+
+```{r}
+#expected_poisson <- dpois(0:4, 1.762)
+#expected_poisson
+```
+```{r}
+expected_doublerun <- 151*dpois(0:4, poisson)
+expected_doublerun
+```
+
+```{r}
+rbind(doublerun, expected_doublerun)
+doublerun
+```
+```{r}
+#calculating test statistics
+obs_doublerun <-c(26,41,45,21,18)
+expected_doublerun <- c(expected_doublerun)
+expected_doublerun 
+sum_diff <- sum((obs_doublerun - expected_doublerun)^2/expected_doublerun)
+sum_diff
+```
+
+```{r}
+pvalue_doublerun <- 1- pchisq(sum_diff, 3)
+pvalue_doublerun 
+```
+p is 0.07 so we donot reject the null hypothesis. It is consistent with what we could expect from poisson distribution.

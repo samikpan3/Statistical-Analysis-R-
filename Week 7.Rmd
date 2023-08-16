@@ -1,0 +1,284 @@
+---
+title: "Homework 7"
+author: "Samikshya"
+date: "2022-11-20"
+output: html_document
+---
+
+
+```{r} 
+library(dplyr) 
+library(tidyverse)
+library(ggplot2) 
+library (resampledata)
+
+```
+
+## Question 9.6
+
+```{r}
+#glimpse(Olympics2012) 
+cor(Olympics2012$Weight, Olympics2012$Height,  use = "complete.obs")
+
+```
+The correlation weight olympics height and weight is 0.5083. 
+
+```{r}
+ggplot(data = Olympics2012, aes( x = Weight,y = Height))+
+  geom_point()
+```
+
+The scatter plot seems to show some positive relation between two variable.s  The pattern of the scatterplot however, is not strictly a straight line, as predicted by the corr value. 
+
+c)  
+From the scatter plot above, we can see that the outlier is on weight so we remove the 2 outliers  
+
+```{r}
+# Calculating IQR 
+summary(Olympics2012$Weight)
+```
+So, we can see that the 3rd quartile is 165 and yet the maximum is 340. 
+Calculating the upper bounds we can use to remove the outliers. 
+
+```{r}
+IQR_weight <- IQR(Olympics2012$Weight ,  na.rm = TRUE) 
+IQR_weight 
+
+upperbound =  (165 + 1.5 * (IQR_weight))
+upperbound
+```
+So, from the IQR calculation, we can see that the upperbound for the weight is 214.5. So, to remove the outlier, we can remove any weight values greater than 215. 
+
+c) 
+```{r}
+
+olympics <- Olympics2012 %>%
+  filter(Weight <= upperbound) 
+cor_weight <- cor(olympics$Weight, olympics$Height,  use = "complete.obs") 
+cor_weight
+
+ggplot(data = olympics, aes( x = Weight,y = Height))+
+  geom_point()
+
+```
+The correlation after removing 2 outliers is 0.8066. The scatterplot also shows that plotting follows a straight line more strictly than it did before we removed the outliers. 
+
+## Question 9.7 
+
+```{r}
+x <- seq(-2, 2, length = 10) 
+y <- x^2 
+plot(x,y)
+```
+a) 
+Yes, x and y are related. Y is  the quadratic function of x.  
+b) 
+
+```{r}
+cor(x, y, use = "complete.obs")
+```
+The value of the corr is really small and near 0. 
+The correlation measures the strength of linear relationship between x and y. So, rather than inferring that there is no relationship between x and y, we can conclude that x and y have no linear relationship between these two variables.  
+
+## Question 9.8   
+
+a)  
+```{r} 
+#glimpse(RangersTwins2016)  
+ggplot(data = RangersTwins2016, aes( x = RBI ,y = BA))+
+  geom_point()
+
+cor_overall <- cor(RangersTwins2016$RBI, RangersTwins2016$BA) 
+cor_overall
+
+```
+The coorelation between RBI and BA overall is 0.469. The scatter plot above also shows that the relationship between RBI and BA is not strongly related.
+
+b) 
+
+```{r} 
+cor_rangers <- cor(RangersTwins2016$RBI[RangersTwins2016$Team == "Rangers"], RangersTwins2016$BA[RangersTwins2016$Team == "Rangers"])
+cor_rangers 
+
+# For twins: 
+team_twins <- RangersTwins2016 %>%
+  filter(Team == "Twins") 
+
+cor_twins <- cor(team_twins$RBI, team_twins$BA) 
+cor_twins
+```
+The correlation between RBI and BA for the Rangers Team is 0.683.
+The corelation between RBI and BA for Twins team is 0.156. 
+The correlation between RBI and BA regardless of the team is almost the average of the coorelation when we look at the correlation between RBI and BA for each individual team. 
+
+
+## Question 9.9 
+a) 
+```{r}
+#glimpse(NBA1617)
+
+cor_NBA <- cor(NBA1617$PercFG, NBA1617$OffReb)
+cor_NBA
+```
+
+The Correlation between  field goal percentage and offensive rebounds is 0.4898.
+
+b) 
+```{r} 
+#Creating a new dataframe by filtering them based on the group/
+NBAteam_group <- NBA1617 %>%
+  group_by(Team) %>% 
+  summarize(mean_Team = mean(PercFG, na.rm = TRUE),
+            mean_offreb = mean(OffReb, na.rm = TRUE))
+  
+NBAteam_group
+
+            
+```
+So, the mean of the PERFG and Offred based on each team is outlined in the table above. 
+
+c) 
+```{r}
+teamgroup <- tibble(NBAteam_group) #Convering the calcualted value into the dataframe so that we could create scatterplot
+
+ggplot(data = teamgroup, aes(x = mean_Team, y = mean_offreb)) +
+  geom_point()
+
+cor_NBAgroup <- cor(teamgroup$mean_Team, teamgroup$mean_offreb)
+cor_NBAgroup 
+```
+The coorealtion between mean of percFG and mean of off_reb when grouped on Team is 0.91. 
+
+##Question 9.10 
+
+```{r} 
+#First function
+f <- function(x)
+{ n = length(x)
+  return((mean(x^2) - mean(x)^2) * n/(n-1))
+}
+
+#Second Function
+g <- function(x)
+{ n = length(x)
+  return(mean((x- mean(x))^2 * n/(n-1)))
+} 
+
+#Passing the list of values
+x1 = c(10, 11,12)
+x2 = c(10^5, 10^5 +1, 10^5+2)
+x3 <- c(10^6, 10^6+1, 10^6 + 2) 
+
+# For c= 10
+f(x1) 
+g(x1)
+var(x1) 
+
+
+
+
+```
+From the list ab
+```{r}
+#For c = 10^4 
+f(x2) 
+g(x2)
+var(x2) 
+
+
+```
+
+
+```{r}
+#For c = 10^6 
+f(x3) 
+g(x3)
+var(x3) 
+
+```
+The variance of all values calculated, regardless of the constant 1 or 2 added has value of 1. IT also shows that both function f and function g give us value 1 and the variance is also 1. 
+
+## Question 9.13 
+
+Given, n= 30, 
+mean of height is 46, SD of height = 7
+mean of weight = 94, SD of weight is 15
+Corr = 0.75 
+a) Finding equation: 
+```{r}
+#First finding the slope 
+# Slope = correlation (sd of y/sd of x) where y = weight, x = height
+
+r = 0.75
+b <- 0.75* (15/7)
+b 
+
+# 94 = a + b*46  
+a <- 94 - (b* 46)
+a
+```
+So b is equal to 1.6071. TO find the a (intercept), we can replace x value with mean of height and y with mean of weight. 
+a = 20.07. 
+
+Therefore, equation is weight = 20.07 + 1.607*height. 
+
+b)  
+
+```{r}
+#Converting height of 5ft to inches, height is 60 inches. so predicting: 
+
+height1 <- a + (b*60 )
+height1
+
+```
+SO, the predicted weight of the girl who is 5ft tall is 116.5.
+
+c) Calculating r2 
+We know that R^2 can be calculated by sqauring the correlation value. 
+
+```{r}
+R_sqr <- r^2 
+R_sqr
+```
+SO the r^2 of the given equation is 0.56. It means that about 56% of variation in weight can be explained by variation in height.
+
+
+## Question 9.14
+
+```{r}
+#glimpse(Quetzal) 
+ggplot(data = Quetzal, aes(x = Nest, y = Snag))+
+  geom_point()
+```
+The relationship looks to share postive relation and are correlated. As Nest height increases,snag also has higher values. 
+
+b) linear model
+```{r}
+x <- Quetzal$Snag
+y <- Quetzal$Nest
+model <- lm(y ~ x)
+summary(model)
+
+```
+So, the equation is, 
+
+nest_height = -0.227 + 0.793*Snag_height
+This means that as the snag height increases by 1 unit, the nest height should increase by 0.973 unit. 
+
+c) 
+
+```{r} 
+#Given the snag height, predicting the nest_height based on the predicted linear regression model. 
+Snag_height <- 8
+nest_height = -0.227 + 0.793*Snag_height
+nest_height
+
+```
+SO, the predicted nest height is 6.117. 
+
+d) 
+From the summary above R squared is 0.953 and adjusted is 0.950.
+This means that from our equation, we can interpret that about 95% of the variation in the nest height can be explained through the variation in the snag height. 
+
+
+

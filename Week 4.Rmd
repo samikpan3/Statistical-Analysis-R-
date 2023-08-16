@@ -1,0 +1,563 @@
+---
+title: "Homework 4"
+author: "Samikshya"
+date: "2022-10-22"
+output: html_document
+---
+## Homework 4: Bootstrap Testing
+   Notebook by: Samikshya Pandey
+## Question 5.7 
+a. 
+Some of the reasons why there could be less sample when there was male experimenter could be because the male skateboarders might not feel comfortable in having their tests taken through saliva. The day could have been less sunny or could be on holiday because of which the sample in itself was small. Because we dont have more information about the sample and other surrounding factors, we could be missing key variables that could impact the sample and their behaviours thus threatening the randomness of the sample. 
+
+b. It was important that the two experimenters were blinded to the purpose of the story because first, the skateborders might react differently if they knew that their testosterone level were being measured. If they knew that this was being measured against the presence of men or female experimenter could affect their behavior and thus the data collected could be biased. Similarly, if both experimenter male and female knew the hypothesis test than they could employ their inherent bias and thus they may not be able to capture the true behaviors of the skateborders. 
+
+## Question 5.8
+
+a)
+Mean of the sample would be distribution would be 36 and the SD would be 8. 
+
+For the theoretical sample, as the distribution is normal the mean is 8 and the standard error is 8/sqr root 200
+```{r}
+sample.distrubtion.std = 8/sqrt(200)
+```
+
+         
+```{r}
+library (tidyverse)
+library (ggplot2)
+library (resampledata)
+library (dplyr)
+```
+
+
+      
+b)
+```{r}
+set.seed(10000)
+data.normal <- rnorm ( n = 200, mean  = 36, sd = 8)
+hist(data.normal)
+```
+The sample size of 200 also has a normal distribution centered around 36. The mean is 36.6889 and standard error is 8.077
+```{r}
+mean.sample <- mean(data.normal)
+mean.sample
+std.sample <- sd(data.normal)
+std.sample
+```
+c) 
+
+```{r}
+n <- 200 #The number of the sample we want in the bootstrap
+N <- 10^4 #Number of times we want the simulation to run 
+
+mean.bootstrapsample <- numeric(N)
+
+for (i in 1:N)
+{
+  bootstrapdata <- sample(data.normal, n, replace = TRUE) #our sample is 200, we are using the dataset we got earlier and replace is true because it is bootstrap. 
+  mean.bootstrapsample[i] = mean(bootstrapdata)
+}
+```
+
+```{r}
+ggplot(data = tibble(mean.bootstrapsample), mapping = aes(x = mean.bootstrapsample)) +
+geom_histogram()
+```
+```{r}
+mean.bootstrap <- mean(mean.bootstrapsample)
+standardeviation.bootstrap <- sd(mean.bootstrapsample)
+```
+The mean of the bootstrap sample is 36.679. It is centered around the sample from which the bootstrap sample was drawn and the standard error is 0.564 because of the large N times the data was run. 
+
+
+d. 
+
+```{r}
+
+dataset.table <-matrix(c(36, 8, 36, sample.distrubtion.std, mean.sample, std.sample, mean.bootstrap, standardeviation.bootstrap), ncol =2, byrow = TRUE ) 
+colnames(dataset.table) <- c("Mean", "Standard Deviation")
+rownames(dataset.table)<- c("Population", "Sampling Distribution (Theoritical)", "Sample", "Bootstrap distribution")
+dataset.table <- as.table(dataset.table) 
+dataset.table
+
+```
+e. 
+
+###For n = 50 
+```{r}
+data.normal.50 <- rnorm(n =50 ,mean  = 36, sd = 8)
+
+n <- 50 #The number of the sample we want in the bootstrap
+N <- 10^4 #Number of times we want the simulation to run
+
+mean.bootstrapsample <- numeric(N)
+
+for (i in 1:N)
+{
+  bootstrapdata <- sample(data.normal.50, n, replace = TRUE) #our sample is 200, we are using the dataset we got earlier and replace is true because it is bootstrap. 
+  mean.bootstrapsample[i] = mean(bootstrapdata)
+}
+ggplot(data = tibble(mean.bootstrapsample), mapping = aes(x = mean.bootstrapsample)) +
+geom_histogram()
+
+```
+
+
+```{r}
+mean.bootstrap.50 <- mean(mean.bootstrapsample)
+standardeviation.bootstrap.50 <- sd(mean.bootstrapsample)
+mean.bootstrap.50
+standardeviation.bootstrap.50
+```
+
+###for n = 10 
+
+```{r} 
+data.normal.10 <- rnorm(n =10 ,mean  = 36, sd = 8)
+n <- 10 #The number of the sample we want in the bootstrap
+N <- 10^4 #Number of times we want the simulation to run
+
+mean.bootstrapsample <- numeric(N)
+
+for (i in 1:N)
+{
+  bootstrapdata <- sample(data.normal.10, n, replace = TRUE) #our sample is 200, we are using the dataset we got earlier and replace is true because it is bootstrap. 
+  mean.bootstrapsample[i] = mean(bootstrapdata)
+}
+ggplot(data = tibble(mean.bootstrapsample), mapping = aes(x = mean.bootstrapsample)) +
+geom_histogram()
+```
+
+
+```{r} 
+mean.bootstrap.10 <- mean(mean.bootstrapsample)
+standardeviation.bootstrap.10 <- sd(mean.bootstrapsample)
+mean.bootstrap.10
+standardeviation.bootstrap.10
+```
+
+
+```{r}
+dataset.table.final <-matrix(c(36, 8, 36, sample.distrubtion.std, mean.sample, std.sample, mean.bootstrap, standardeviation.bootstrap, mean.bootstrap.50, standardeviation.bootstrap.50, mean.bootstrap.10, 
+standardeviation.bootstrap.10), ncol =2, byrow = TRUE ) 
+colnames(dataset.table.final) <- c("Mean", "Standard Deviation")
+rownames(dataset.table.final)<- c("Population", "Sampling Distribution", "Sample", "Bootstrap distribution 200","Bootstrap distribution 50","Bootstrap distribution 10")
+dataset.table.final <- as.table(dataset.table.final) 
+dataset.table.final
+
+```
+The mean regardless of the sample size tends to center around the sample mean (36) however, the standard deviation/standard error decreases as the number of sample increases in the bootstrap distribution. When n is really small (i.e in case of n =10), even in normal distribution, the bootstrap mean is different that both sample distribution as well as population mean.  
+
+## Question 5.9
+
+
+```{r}
+population.mean.gamma <- 5/(1/4)
+population.sd.gamma <- sqrt(5/(1/4)^2)
+population.mean.gamma
+population.sd.gamma
+```
+
+
+
+a) We need to run the for loop because we dont know how the smapling distribution will behave under gamma distribution. We didnt need to do this for 5.8 because we know that the sampling distribution for normal behaves like a normal distribution. To check the sample mean and SD, we need to run the simulation 200 times like mentioned in the question. 
+```{r}
+#Drawing a sample from above distribution: 
+set.seed(1000)
+gamma.sample <- numeric(1000)
+
+for (j in 1: 1000)
+{ 
+  a <- rgamma(n=200, shape =  5, rate =  0.25)
+  gamma.sample[j] = mean(a)
+}
+
+ggplot(data = tibble(gamma.sample), mapping = aes(x = gamma.sample)) +
+geom_histogram() 
+
+```
+The distribution of the samples of the gamma distribution is normally distributed with mean of 20.00 and standard error of 0.63687
+
+```{r}
+mean.sample.gamma = mean(gamma.sample)
+std.sample.gamma = sd(gamma.sample)
+mean.sample.gamma
+std.sample.gamma
+```
+b) 
+Creating one sample from the above distribution to run the data; mean of 20.408 and SD of 8.942. This data variable is similar to the original population gamma distribution. 
+```{r}
+sample.gamma <- rgamma(n=200, shape =  5, rate =  0.25) 
+
+sample.gamma.mean = mean(sample.gamma)
+sample.gamma.sd <- sd(sample.gamma)
+
+
+```
+
+sample mean = 20.408
+sample SD = 8.96 
+
+
+
+```{r}
+N <- 10^4
+sample.size = 200
+gamma.bootstrap.mean <- numeric(N)
+
+for (i in 1:N)
+{
+  gamma.bootstrap <- sample(sample.gamma, size =sample.size, replace = TRUE)
+  gamma.bootstrap.mean[i] <- mean(gamma.bootstrap)
+}
+
+```
+
+```{r}
+
+ggplot(data = tibble(gamma.bootstrap.mean), mapping = aes(x = gamma.bootstrap.mean)) +
+geom_histogram()
+  
+mean.gamma.bootstrap200 <- mean(gamma.bootstrap.mean)  
+std.gamma.bootstrap200 <-sd(gamma.bootstrap.mean)
+mean.gamma.bootstrap200
+std.gamma.bootstrap200
+```
+The distribution looks normal and the calcualted mean is 20.62119 and Standard error is 0.6387137
+
+c) 
+```{r}
+dataset.table.gamma <-matrix(c(population.mean.gamma,population.sd.gamma, mean.sample.gamma, std.sample.gamma,sample.gamma.mean, sample.gamma.sd, mean.gamma.bootstrap200, std.gamma.bootstrap200), ncol =2, byrow = TRUE) 
+colnames(dataset.table.gamma) <- c("Mean", "Standard Deviation")
+rownames(dataset.table.gamma)<- c("Population","Sampling Distribution", "Sample", "Bootstrap distribution")
+dataset.table.gamma <- as.table(dataset.table.gamma) 
+dataset.table.gamma
+```
+The mean is centered around 20. The mean of sample we took and bootstrap distribution is very close. however, the standard deviation/error decreases in bootstrap distribution and is very similar to the sampling distribution. The SD of population and sample is very close as well. 
+
+
+```{r} 
+sample.gamma.50 <- rgamma(n=50, shape =  5, rate =  0.25)
+
+N <- 10^4
+sample.size = 50
+gamma.bootstrap.mean <- numeric(N)
+
+for (i in 1:N)
+{
+  gamma.bootstrap <- sample(sample.gamma.50, size =sample.size, replace = TRUE)
+  gamma.bootstrap.mean[i] <- mean(gamma.bootstrap)
+}
+
+head(gamma.bootstrap.mean) 
+
+ggplot(data = tibble(gamma.bootstrap.mean), mapping = aes(x = gamma.bootstrap.mean)) +
+geom_histogram()
+  
+mean.gamma.bootstrap50 <- mean(gamma.bootstrap.mean)  
+std.gamma.bootstrap50 <-sd(gamma.bootstrap.mean)
+mean.gamma.bootstrap50
+std.gamma.bootstrap50
+```
+
+##FOr 10
+
+```{r}
+gamma.sample.10 <- rgamma(n=50, shape =  5, rate =  0.25)
+N <- 10^4
+sample.size = 10
+gamma.bootstrap.mean <- numeric(N)
+
+for (i in 1:N)
+{
+  gamma.bootstrap <- sample(gamma.sample.10, size =sample.size, replace = TRUE)
+  gamma.bootstrap.mean[i] <- mean(gamma.bootstrap)
+}
+
+head(gamma.bootstrap.mean) 
+
+ggplot(data = tibble(gamma.bootstrap.mean), mapping = aes(x = gamma.bootstrap.mean)) +
+geom_histogram()
+  
+mean.gamma.bootstrap10 <- mean(gamma.bootstrap.mean)  
+std.gamma.bootstrap10 <-sd(gamma.bootstrap.mean)
+mean.gamma.bootstrap10
+std.gamma.bootstrap10
+```
+
+
+```{r} 
+dataset.table.gamma.final <-matrix(c(population.mean.gamma,population.sd.gamma, mean.sample.gamma, std.sample.gamma,sample.gamma.mean, sample.gamma.sd, mean.gamma.bootstrap200, std.gamma.bootstrap200, mean.gamma.bootstrap50, std.gamma.bootstrap50,mean.gamma.bootstrap10, std.gamma.bootstrap10), ncol =2, byrow = TRUE) 
+colnames(dataset.table.gamma.final) <- c("Mean", "Standard Deviation")
+rownames(dataset.table.gamma.final)<- c("Population","Sampling Distribution", "Sample", "Bootstrap distribution200", "Bootstrap distribution50","Bootstrap distribution10")
+dataset.table.gamma.final <- as.table(dataset.table.gamma.final) 
+dataset.table.gamma.final
+```
+The mean of the bootstrap hovers around the mean of the sample. The value gets closer as the sample size of the bootstrap increases. The SD decreases as the sample size of the bootstrap increases. When the sample sise of  decreases, the bootstrap distribution value is farther away from the population mean and SD as in the case when n is 50 or 10.
+
+## Question 5.10 
+```{r}
+ne <- 14 # n even
+no <- 15 # n odd
+wwe <- rnorm(ne) # draw random sample of size ne
+wwo <- rnorm(no) # draw random sample of size no
+N <- 10^4
+even.boot <- numeric(N) # save space
+odd.boot <- numeric(N)
+for (i in 1:N)
+{
+x.even <- sample(wwe, ne, replace = TRUE)
+x.odd <- sample(wwo, no, replace = TRUE)
+even.boot[i] <- median(x.even)
+odd.boot[i] <- median(x.odd)
+}
+
+par(mfrow = c(2,1)) 
+# set figure layout 
+ggplot(data = tibble(even.boot), mapping = aes(x = even.boot))+
+  geom_histogram(bins = 40)+
+  xlim(-2,2)
+
+ggplot(data = tibble(odd.boot), mapping = aes(x = odd.boot))+
+  geom_histogram(bins = 40)+
+  xlim(-2,2)
+
+par(mfrow = c(1,1))
+
+```
+```{r}
+median.even <- median(even.boot)
+std.even<- sd(even.boot)
+median.odd <- median(odd.boot)
+std.odd <- sd(odd.boot)
+```
+When we look at odd and even histogram, the even has more value concentrated within 0 and -1, whereas odd is divided into two separate groups. 
+
+Changing the sample size to 36 and 37
+```{r}
+ne <- 36 # n even
+no <- 37 # n odd
+wwe <- rnorm(ne) # draw random sample of size ne
+wwo <- rnorm(no) # draw random sample of size no
+N <- 10^4
+even.boot.36 <- numeric(N) # save space
+odd.boot.37 <- numeric(N)
+for (i in 1:N)
+{
+x.even <- sample(wwe, ne, replace = TRUE)
+x.odd <- sample(wwo, no, replace = TRUE)
+even.boot.36[i] <- median(x.even)
+odd.boot.37[i] <- median(x.odd)
+}
+
+par(mfrow = c(2,1)) 
+# set figure layout 
+ggplot(data = tibble(even.boot.36), mapping = aes(x = even.boot.36))+
+  geom_histogram(bins = 40)+
+  xlim(-2,2)
+
+ggplot(data = tibble(odd.boot.37), mapping = aes(x = odd.boot.37))+
+  geom_histogram(bins = 40)+
+  xlim(-2,2)
+
+par(mfrow = c(1,1))
+
+
+```
+
+The even boot looks more multimodal and the values looks like steps. they have more dispersed value. In odd, it has one peaking between 0 and 0.5. The values seems more discrete too with gaps in between the value. This could be because in odd number of values, the median can take a value within the sample but in even number, it has to be average between two numbers in the median population. 
+
+```{r}
+median.even.36 <- median(even.boot.36)
+std.even.36<- sd(even.boot.36)
+median.odd.37 <- median(odd.boot.37)
+std.odd.37 <- sd(odd.boot.37)
+```
+
+
+```{r}
+ne <- 200 # n even
+no <-201 # n odd
+wwe <- rnorm(ne) # draw random sample of size ne
+wwo <- rnorm(no) # draw random sample of size no
+N <- 10^4
+even.boot.200 <- numeric(N) # save space
+odd.boot.201 <- numeric(N)
+for (i in 1:N)
+{
+x.even <- sample(wwe, ne, replace = TRUE)
+x.odd <- sample(wwo, no, replace = TRUE)
+even.boot.200[i] <- median(x.even)
+odd.boot.201[i] <- median(x.odd)
+}
+
+par(mfrow = c(2,1)) 
+# set figure layout 
+ggplot(data = tibble(even.boot.200), mapping = aes(x = even.boot.200))+
+  geom_histogram(bins = 40)+
+  xlim(-1,1)
+
+ggplot(data = tibble(odd.boot.201), mapping = aes(x = odd.boot.201))+
+  geom_histogram(bins = 40)+
+  xlim(-1,1)
+
+par(mfrow = c(1,1))
+```
+```{r}
+median.even.200 <- median(even.boot.200)
+std.even.200<- sd(even.boot.200)
+median.odd.201 <- median(odd.boot.201)
+std.odd.201 <- sd(odd.boot.201)
+```
+As the sample increases, even turns into  a unimodel with peak at around 0.0-0.25. The dispersion of values in both odd and even seem concentrated. 
+
+```{r}
+ne <- 10000 # n even
+no <- 10001 # n odd
+wwe <- rnorm(ne) # draw random sample of size ne
+wwo <- rnorm(no) # draw random sample of size no
+N <- 10^4
+even.boot.10000 <- numeric(N) # save space
+odd.boot.10001 <- numeric(N)
+for (i in 1:N)
+{
+x.even <- sample(wwe, ne, replace = TRUE)
+x.odd <- sample(wwo, no, replace = TRUE)
+even.boot.10000[i] <- median(x.even)
+odd.boot.10001[i] <- median(x.odd)
+}
+
+par(mfrow = c(2,1)) 
+# set figure layout 
+ggplot(data = tibble(even.boot.10000), mapping = aes(x = even.boot.10000))+
+  geom_histogram(bins = 40)+
+  xlim(-0.5,0.5)
+
+ggplot(data = tibble(odd.boot.10001), mapping = aes(x = odd.boot.10001))+
+  geom_histogram(bins = 40)+
+  xlim(-0.5,0.5)
+
+par(mfrow = c(1,1))
+
+```
+AS the n increases, the even and odd both have less variation within their value and are concentrated near 0. Odd still seems to have less spread in their count median and is less granular, but the differences between odd and even decrease when n increases. 
+
+```{r}
+median.even.10000 <- median(even.boot.10000)
+std.even.10000<- sd(even.boot.10000)
+median.odd.10001 <- median(odd.boot.10001)  
+std.odd.100001 <- sd(odd.boot.10001)
+```
+
+## Question 5.14 
+
+```{r}
+data <- (Beerwings) 
+
+wings.Female <- Beerwings$Hotwings[Beerwings$Gender =="F"]
+wings.male <- Beerwings$Hotwings[Beerwings$Gender =="M"]
+
+mean.wings.diff =abs( mean(wings.Female)-mean(wings.male))
+mean.wings.diff
+```
+
+
+```{r}
+set.seed(10000)
+N <- 10^4 
+diff.wings.mean <- numeric(N) 
+
+for (i in 1:N)
+{
+  female.wings <- sample(wings.Female, length(wings.Female), replace = TRUE)
+  male.wings <- sample(wings.male, length(wings.male), replace = TRUE)
+  diff.wings.mean[i] <- abs(mean(female.wings) - mean(male.wings))
+}
+```
+
+
+```{r}
+ggplot(data = tibble(diff.wings.mean), mapping = aes(x = diff.wings.mean))+
+  geom_histogram()
+
+d_means = abs(mean(diff.wings.mean))
+d_means
+sd_wings = sd(diff.wings.mean)
+sd_wings
+```
+So the bootstrap difference in mean is 5.199853 and the sd is around 1.422
+The bootstrap difference follows a normal distribution which is centered around mean of 5.0. 
+
+b) 
+```{r}
+# Calculating the confidence interval through the qunatile method
+quantile(diff.wings.mean, c(0.025, 0.975))
+```
+So the values for the confidence interval are 2.40 and 7.935. This means that based on our bootstrap, we can say with 95% confidence that the difference in mean wings eaten between two gender lies within the range of 2.40 and 7.935.
+
+The mean difference at the bootstrap is 5.19366 and the mean calculated by permutation is 5.20. so the difference is close to 0.00634. 
+
+Permutation: we are doing hypothesis testing to test  if the difference we observed was purely out of chance or not and to see if the observed difference indicates a systematic difference. . So, for this test, we take samples and divide them into two groups regardless of the gender and compare it with the original observed difference to see if we can statistically conclude that mean on average eat more wings than female. WE test this by creating a permutation testing. 
+
+In bootstrap, we take the one sample and test the difference in wings while considering the gender. Since the replacement is true, we cna take several samples from our existing sample to create a bootstrap sample distribution. Through this, we can testing if we say with what level of confidence does our sample represents the value of the parameter. 
+
+## 5.19
+
+```{r}
+data.icecream <- IceCream
+
+head(data.icecream, 10)
+
+```
+
+
+```{r}
+calories.vanilla <- data.icecream$VanillaCalories
+calories.chocolate <- data.icecream$ChocolateCalories
+
+meandifference.calories = abs(mean(calories.vanilla) - mean(calories.chocolate))
+meandifference.calories
+
+summary (calories.vanilla)
+summary(calories.chocolate)
+```
+So the calculated difference in calories is 7.33.
+From the summary statistics, the maximum calorie is high in chocolate and the median and mean is high in chocolate as well. 
+
+
+```{r}
+nvanilla <- length(calories.vanilla)
+nchocolate <- length(calories.chocolate)
+
+calories_difference <- data.icecream$ChocolateCalories - data.icecream$VanillaCalories 
+
+N <- 10^4
+
+difference.calories <- numeric(N)
+
+for (i in 1:N)
+{
+ a = sample(calories_difference , size = length(calories_difference), replace = TRUE)
+ difference.calories[i] = mean(a)
+} 
+```
+
+
+
+```{r}
+
+ggplot(data = tibble(difference.calories), mapping = aes(x = difference.calories))+
+  geom_histogram(bins = 50 )
+```
+The distribution looks normal with no apparent skeweness. The calories difference is concentrated near -5. 
+
+
+```{r}
+mean.bootstrapcalorie <- mean(difference.calories)
+sd.bootstrapcalorie <- sd(difference.calories)
+
+quantile(difference.calories, c(0.025, 0.975))
+```
+We can conclude that the mean calorie difference differ by 3.43 to 11.46 calories between the flavors with 95% confidence level. Since both range is in positive, we can say with confidence that there is a calorie differences between vanilla and chocolate flavor.
+
